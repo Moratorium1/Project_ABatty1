@@ -1,0 +1,174 @@
+<Root>
+	<Graphs Type="Graph">
+		<!-- Format:<Graph Name="" Node="" Edge=""/> -->
+		<!-- Node more than 10 nodes per subgraph as edge system works on single ints only -->
+		<!-- Key:
+			 S = Start
+			 H = Hub
+			 C = Cycle
+			 c = Cycle Entrance
+			 T = Tree
+			 t = Tree Entrance
+			 I = Injection
+			 i = Injection Entrance
+			 N = Normal Room
+			 R = Reward
+			 F = Boss Foyer
+			 B = Boss
+			 b = Mini Boss
+			 Z = Shop
+			 G = Goal -->
+
+		<!-- Starting Subgraph -->
+
+
+		<Graph Name="Start" Node="Z" Edge=""/>
+
+		<Graph Name="Hub" Node="H" Edge=""/>
+		
+		
+		<!-- Compisite Subgraphs - Initial nodes that inform the later rules -->
+
+		<Graph Name="SingleTree" Node="zT" Edge="01"/>
+
+		<Graph Name="DualTree" Node="zTT" Edge="0102"/>
+
+		<Graph Name="TripleTree" Node="zTTT" Edge="010203"/>
+
+		<Graph Name="HubSingleTree" Node="hT" Edge="01"/>
+
+		<Graph Name="HubDualTree" Node="hTT" Edge="0102"/>
+
+		<Graph Name="HubTripleTree" Node="hTTT" Edge="010203"/>
+
+
+		<!-- Cycle containing grammar - not implemented fully
+			<Graph Name="DualCycle" Node="hC" Edge="01"/>
+		
+			<Graph Name="ConjoinedCycle" Node="CC" Edge="01"/>
+
+			<Graph Name="DualCycleSingleTree" Node="hCTC" Edge="010203"/>
+
+			<Graph Name="DualTreeSingleCycle" Node="hTCT" Edge="010203"/>
+		 -->
+		<!-- Cycle Subgraphs - Replace the Cycle Nodes -->
+
+		<!-- Cycle containing grammar - not implemented fully
+			<Graph Name="Cycle" node="C" Edge=""/>
+		
+			<Graph Name="MinorCycle1" Node="cNIN" Edge="01122330"/>
+		
+			<Graph Name="MinorCycle2" Node="cINN" Edge="01122330"/>
+
+			<Graph Name="MinorCycle3" Node="cNNI" Edge="01122330"/>
+
+			<Graph Name="MinorRewardCycle1" Node="cINR" Edge="01122330"/>
+
+			<Graph Name="MinorRewardCycle2" Node="cNRI" Edge="01122330"/>
+
+			<Graph Name="MajorRewardCycle1" Node="cNINNR" Edge="011223344550"/>
+
+			<Graph Name="MajorRewardCycle2" Node="cNNINR" Edge="011223344550"/>
+
+			<Graph Name="MajorRewardCycle3" Node="cNNNIR" Edge="011223344550"/>
+		-->
+
+		<!-- Tree Subgraphs - Replace the Tree Nodes -->
+		
+		<Graph Name="Tree" Node="T" Edge=""/>
+
+		<Graph Name="InjectTree" Node="iT" Edge="01"/>
+
+		<Graph Name="MinorTree1" Node="tNNI"	Edge="011223"/>
+
+		<Graph Name="MinorTree2" Node="tNIN"	Edge="011223"/>
+
+		<Graph Name="MajorTree1" Node="tNNINNI" Edge="011223344556"/>
+
+		<Graph Name="MajorTree2" Node="tNINNIN" Edge="011223344556"/>
+
+
+
+		<!-- Injected Hooks	- Nodes that that get replaced with hooks -->
+
+		<Graph Name="Inject" Node="I" Edge=""/>
+
+		<Graph Name="HubTree1" Node="iH"	Edge="01"/>
+		
+
+		<!-- Player Type Subgraphs - Nodes that denote player type specific room types -->
+		
+		<Graph Name="Killer" Node="K" Edge=""/>
+
+		<Graph Name="achiever" Node="A" Edge=""/>
+
+		<Graph Name="socialiser" Node="S" Edge=""/>
+
+		<Graph Name="explorer" Node="E" Edge=""/>
+
+
+
+
+
+
+
+
+	</Graphs>
+	
+	<!-- -->
+	<Rules Type="Rule">
+		<!--Flow Rules, Take the starting node and build a prebuilt flow -->
+		<!-- Format: Rules with four right options need to go in order Killer, Achiever, Socialiser and Explorer
+		<Rule Name="" Left="" Mode="">
+			<Right Name=""/>
+			<Right Name=""/>
+			<Right Name=""/>
+			<Right Name=""/>
+		</Rule> 
+		-->
+		
+		<Rule Name="Start" Left="Start" Mode="Normal">
+			<Right Name="DualTree"/>
+			<Right Name="TripleTree"/>
+		</Rule>
+
+		<Rule Name="Hub" Left="Hub" Mode="Normal">
+			<Right Name="HubDualTree"/>
+			<Right Name="HubTripleTree"/>
+		</Rule>
+
+		<Rule Name="ResolveTree" Left="Tree" Mode="Cellular">
+			<Right Name="MinorTree1"/>
+			
+			<Right Name="MinorTree2"/>
+			<!-- 
+			<Right Name="MajorTree1"/>
+			<Right Name="MajorTree2"/> 
+			-->
+		</Rule>
+
+		<Rule Name="InjectTree" Left="Inject" Mode="Normal">
+			<Right Name="InjectTree"/>
+		</Rule>
+
+		<Rule Name="InjectHub" Left="Inject" Mode="Normal">
+			<Right Name="HubTree1"/>
+		</Rule>
+
+		<Rule Name="InjectGoal" Left="Inject" Mode="Normal">
+			<Right Name="BossWalkThrough"/>
+		</Rule>
+		
+		
+		<Rule Name="ResolveInject" Left="Inject" Mode="CELLULAR">
+			<!-- <Right Name="Hub"/> -->
+			<Right Name="MinorTree1"/>
+			<Right Name="MinorTree2"/>
+			<!-- 
+			<Right Name="MajorTree1"/>
+			<Right Name="MajorTree2"/> 
+			-->
+		</Rule>
+		
+	</Rules>
+</Root>
