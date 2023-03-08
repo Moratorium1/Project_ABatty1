@@ -38,5 +38,4 @@ private:
 
 	UPROPERTY()
 	TArray<ULevelGraph*> Levels;
-
 };

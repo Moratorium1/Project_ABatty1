@@ -39,6 +39,9 @@ void UGraph::SetNodesString(const FString& String)
 /* Returns the Nodes array of the graph by reference */
 TArray<UGraphNode*>& UGraph::GetNodes() { return Nodes; }
 
+/* Returns the Edges array of the graph by reference */
+TArray<UGraphEdge*>& UGraph::GetEdges() { return Edges; }
+
 /* Create GraphEdges between the nodes of the Nodes array by passing in a Array of FIntPoint where X is index of the node the From and Y the index to */
 void UGraph::SetEdges(const TArray<FIntPoint> EdgePoints)
 {
@@ -177,6 +180,11 @@ TArray<ENodeType> UGraph::StringToENodeType(const FString String)
 		else if (Type.Equals(TEXT("G")))
 			NodeTypes.Add(ENodeType::GOAL);
 		else if (Type.Equals(TEXT("g")))
+			NodeTypes.Add(ENodeType::goal);
+
+		else if (Type.Equals(TEXT("Q")))
+			NodeTypes.Add(ENodeType::GOAL);
+		else if (Type.Equals(TEXT("q")))
 			NodeTypes.Add(ENodeType::goal);
 
 		else

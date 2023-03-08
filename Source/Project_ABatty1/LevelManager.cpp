@@ -7,7 +7,10 @@
 #include "GraphManager.h"
 #include "GraphNode.h"
 #include "ATile.h"
+#include "Kismet/GameplayStatics.h"
 
+#include "Engine/LevelStreamingDynamic.h"
+#include "Engine/World.h"
 
 void ULevelManager::Initialise()
 {
@@ -18,19 +21,14 @@ void ULevelManager::Initialise()
 
 	// Initialise the array with 10 elements of nullptr then replace each with its own LevelGraph
 	Levels.Init(nullptr, 10);
-	for (int i = 0; i < Levels.Num(); i++)
-	{
-		ULevelGraph* LevelGraph = NewObject<ULevelGraph>();
-		Levels[i] = LevelGraph;
-		Levels[i]->Initialise();
-	}
 
 	GenerateLevel(0);
 }
 
 void ULevelManager::GenerateLevel(const int& LevelNumber)
 {
-	/*	Initialise the Level - Place the first starting node
+	/*  Destory all exisitng tiles
+	*	Initialise the Level - Add the starting node
 	*	Select a recipe
 	*	Execute the recipe
 	*	Set the adjacent nodes	- Each composite node needs to know its adjacent composite to be placed
@@ -39,35 +37,33 @@ void ULevelManager::GenerateLevel(const int& LevelNumber)
 	*	If LayoutComposite returns false, Call GenerateLevel and start again
 	*/
 
-	/* S = Shop new start is HUB*/
+	for (TObjectIterator<AATile> Itr; Itr; ++Itr) Itr->Destroy();
+
+	ULevelGraph* LevelGraph = NewObject<ULevelGraph>();
+	Levels[LevelNumber] = LevelGraph;
+	Levels[LevelNumber]->Initialise();
+
 	FString nodes = "Z";
 	FString edges = "";
 
 	Levels[LevelNumber]->OverallLevel->SetNodesString(nodes);
 	Levels[LevelNumber]->OverallLevel->SetEdgesString(edges);
-	GraphManager->ExecuteRule(TEXT("Start"), Levels[LevelNumber]);
-	//GraphManager->ExecuteRule(TEXT("ResolveCycle"), Levels[LevelNumber]);
-	GraphManager->ExecuteRule(TEXT("ResolveTree"), Levels[LevelNumber]);
-	GraphManager->ExecuteRule(TEXT("InjectTree"), Levels[LevelNumber]);
-	GraphManager->ExecuteRule(TEXT("ResolveTree"), Levels[LevelNumber]);
 
-	//GraphManager->ExecuteRule(TEXT("InjectHub"), Levels[LevelNumber]);
-	//GraphManager->ExecuteRule(TEXT("Hub"), Levels[LevelNumber]);
-	GraphManager->ExecuteRule(TEXT("ResolveTree"), Levels[LevelNumber]);
-
-
-
-
+	GraphManager->ExecuteRecipe(GraphManager->ChooseRecipe(), Levels[LevelNumber]);
 	GraphManager->SetAdjComposites(Levels[LevelNumber]);
 	GraphManager->ExtractComposites(Levels[LevelNumber]);
-	GraphManager->LayoutComposites(Levels[LevelNumber]);
+
+	if (!GraphManager->LayoutComposites(Levels[LevelNumber]))
+		GenerateLevel(LevelNumber);
+
+	GraphManager->InitialiseCoarseGrid(Levels[LevelNumber]);
 
 	SpawnLevel(LevelNumber);
 }
 
 void ULevelManager::SpawnLevel(const int& LevelNumber)
 {
-	TArray<TArray<UGraphNode*>> CurrentLevel = Levels[LevelNumber]->Layout;
+	TArray<TArray<UGraphNode*>> CurrentLevel = Levels[LevelNumber]->CoarseGrid;
 
 	int TileSize = GameInstance->TileSize;
 
@@ -114,6 +110,7 @@ void ULevelManager::SpawnLevel(const int& LevelNumber)
 
 				default:
 					GetWorld()->SpawnActor<AATile>(GameInstance->TileClass, FVector(X * TileSize, Y * TileSize, 0), FRotator::ZeroRotator);
+
 				}
 			}
 }

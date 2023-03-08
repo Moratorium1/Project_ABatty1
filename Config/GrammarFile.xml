@@ -3,25 +3,54 @@
 		<!-- Format:<Graph Name="" Node="" Edge=""/> -->
 		<!-- Node more than 10 nodes per subgraph as edge system works on single ints only -->
 		<!-- Key:
-			 S = Start
-			 H = Hub
-			 C = Cycle
-			 c = Cycle Entrance
-			 T = Tree
-			 t = Tree Entrance
-			 I = Injection
-			 i = Injection Entrance
-			 N = Normal Room
-			 R = Reward
-			 F = Boss Foyer
-			 B = Boss
-			 b = Mini Boss
-			 Z = Shop
-			 G = Goal -->
+		H = HUB
+		h = hub
+
+		C = CYCLE
+		c = cycle
+
+		T = TREE
+		t = tree
+
+		I = INJECT
+		i = inject
+		
+		Z = START
+		z = start
+		
+		N = ROOM
+		n = room
+		
+		O = KEY
+		o = key
+		
+		L = LOCK
+		l = lock
+		
+		K = KILLER
+		k = killer
+		
+		A = ACHIEVER
+		a = achiever
+		
+		S = SOCIALISER
+		s = socialiser
+		
+		E = EXPLORER
+		e = explorer
+		
+		G = GOAL
+		g = goal 
+		
+		Q = Quest
+		q = quest
+		
+		-->
 
 		<!-- Starting Subgraph -->
 
-
+		<Graph Name="Empty" Node="" Edge=""/>
+		
 		<Graph Name="Start" Node="Z" Edge=""/>
 
 		<Graph Name="Hub" Node="H" Edge=""/>
@@ -115,6 +144,8 @@
 
 	</Graphs>
 	
+	
+	
 	<!-- -->
 	<Rules Type="Rule">
 		<!--Flow Rules, Take the starting node and build a prebuilt flow -->
@@ -171,4 +202,29 @@
 		</Rule>
 		
 	</Rules>
+	
+	
+	
+	
+	<Recipes type="Recipe">
+		
+		<Recipe Name="Recipe1">
+			<Rule Name="Start"/>
+			<Rule Name="ResolveTree"/>
+			<Rule Name="InjectTree"/>
+			<Rule Name="ResolveTree"/>
+		</Recipe>
+
+		<Recipe Name="Recipe2">
+			<Rule Name="Start"/>
+			<Rule Name="ResolveTree"/>
+			<Rule Name="InjectHub"/>
+			<Rule Name="Hub"/>
+			<Rule Name="ResolveTree"/>
+		</Recipe>
+		
+
+	</Recipes>
+	
+	
 </Root>

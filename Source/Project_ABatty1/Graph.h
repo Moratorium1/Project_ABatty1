@@ -16,13 +16,13 @@ enum class ENodeType
 	INVALID,
 	//Non-Terminal
 	//High Level
+	START,
 	HUB,
 	CYCLE,
 	TREE,
 	INJECT,
 
 	//Low Level
-	START,
 	ROOM,
 	KEY,
 	LOCK,
@@ -31,16 +31,17 @@ enum class ENodeType
 	SOCIALISER,
 	EXPLORER,
 	GOAL,
+	QUEST,
 
 	//Terminal
 	//High Level
+	start,
 	hub,
 	cycle,
 	tree,
 	inject,
 
 	//Low Level
-	start,
 	room,
 	key,
 	lock,
@@ -49,6 +50,10 @@ enum class ENodeType
 	socialiser,
 	explorer,
 	goal,
+	quest,
+
+	// Edge
+	EDGE,
 
 	MAX
 };
@@ -72,6 +77,9 @@ public:
 
 	UFUNCTION()
 	TArray<UGraphNode*>& GetNodes();
+
+	UFUNCTION()
+	TArray<UGraphEdge*>& GetEdges();
 
 	UFUNCTION()
 	void SetEdges(const TArray<FIntPoint> EdgePoints);

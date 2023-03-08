@@ -11,12 +11,12 @@ class UGraphManager;
 class ULevelManager;
 class AATile;
 
+/* Holds values corresponding to Bartles Player Types */
 USTRUCT()
 struct FPlayerModel
 {
 	GENERATED_BODY()
 
-	/* */
 	int Killer = 25;
 	int Achiever = 25;
 	int Socialiser = 25;
@@ -31,6 +31,7 @@ class PROJECT_ABATTY1_API UProjectGameInstance : public UGameInstance
 	
 public:
 
+	/* Initialises the Game Instance - Creating the Graph and Level manager subsystems */
 	virtual void Init() override;
 
 	/* Loads the player model */
@@ -40,6 +41,20 @@ public:
 	UFUNCTION()
 	FPlayerModel GetPlayerModel();
 
+	UFUNCTION()
+	void IncreaseKillerType();
+
+	UFUNCTION()
+	void IncreaseAchieverType();
+
+	UFUNCTION()
+	void IncreaseSocialiserType();
+
+	UFUNCTION()
+	void IncreaseExplorerType();
+
+	UFUNCTION()
+	void NextLevel();
 
 	/* Tile Information */
 
@@ -61,13 +76,30 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Tile")
 	TSubclassOf<AATile> CycleClass;
 
+
+	UPROPERTY(EditAnywhere, Category = "Tile")
+	TSubclassOf<AATile> KillerClass;
+
+	UPROPERTY(EditAnywhere, Category = "Tile")
+	TSubclassOf<AATile> AchieverClass;
+
+	UPROPERTY(EditAnywhere, Category = "Tile")
+	TSubclassOf<AATile> SocialiserClass;
+
+	UPROPERTY(EditAnywhere, Category = "Tile")
+	TSubclassOf<AATile> ExplorerClass;
+
+
 	UPROPERTY(EditAnywhere, Category = "Tile")
 	int TileSize = 250;
 
-
-	/*  */
+	/* The Maximum number of attempts a composite can take to layout */
 	UPROPERTY(EditAnywhere, Category = "LevelManager")
 	int LayoutAttempts = 4;
+
+	/* Level Number corresponds to the index of the LevelManagers Levels Array - incremented upon level completion */
+	UPROPERTY()
+	int LevelNumber = 0;
 
 private:
 

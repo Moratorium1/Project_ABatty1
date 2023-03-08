@@ -4,6 +4,7 @@
 #include "GraphManager.h"
 #include "ProjectGameInstance.h"
 #include "Rule.h"
+#include "Recipe.h"
 #include "Graph.h"
 #include "LevelGraph.h"
 #include "GraphNode.h"
@@ -22,7 +23,13 @@ void UGraphManager::Initialise()
 
 void UGraphManager::ExecuteRecipe(const FString& RecipeName, ULevelGraph* Level)
 {
+    /* Execute each rule of the given recipe */
 
+    auto Recipe = Recipes[RecipeName];
+    if (!Recipe) return;
+
+    for (auto rule : Recipe->GetRules())
+        ExecuteRule(rule, Level);
 }
 
 /* Execute the specified rule, finding the Left subgraph within the passed level Graph and transforming it to a choosen right subgraph */
@@ -90,6 +97,19 @@ UGraph* UGraphManager::ChooseRight(TArray<FString> SubGraphNames)
     }
 
     return Subgraphs[ChosenRight];
+}
+
+/* Chooses a URecipe */
+FString UGraphManager::ChooseRecipe()
+{
+    TArray<FString> RecipeNames; 
+    Recipes.GetKeys(RecipeNames);
+
+    // Generate a random index within the bounds of the array
+    int32 RandIndex = FMath::RandRange(0, Recipes.Num() - 1);
+
+    // Return the Recipe name at the random index
+    return RecipeNames[RandIndex];
 }
 
 /* SUBGRAPH SEARCH FUNCTIONS START */
@@ -287,9 +307,10 @@ bool UGraphManager::LayoutComposites(ULevelGraph* Level)
 
         Coords = AdjComposite->LayoutCoords;
 
+        bool success = false;
         for (int attempts = 0; attempts < GameInstance->LayoutAttempts; attempts++)
         {
-            bool success = false;
+            success = false;
 
             if (Composite.Key->GetType() == ENodeType::tree)
                 success = LayoutTree(Composite.Value, CombinedLevel, Coords.X, Coords.Y);
@@ -302,6 +323,9 @@ bool UGraphManager::LayoutComposites(ULevelGraph* Level)
 
             if (success) break;
         } 
+
+        // If all attempts fail to layout the composite return false
+        if (!success) return false;
     }
     Level->Layout = CombinedLevel;
 
@@ -374,70 +398,8 @@ bool UGraphManager::LayoutHub(UGraph* Hub, TArray<TArray<UGraphNode*>>& Grid, in
     else return false;
 }
 
-
-
-
-
-/* Returns a TMap for each direction in the grid set to false - allows for tracking the directions tried when laying out graph nodes */
-TMap<FIntPoint, bool> UGraphManager::GetDirectionMap()
-{
-    TMap<FIntPoint, bool> DirectionMap;
-
-    const int NumDirections = 4;
-    int XDirections[NumDirections] = { 0, 1, 0, -1 };
-    int YDirections[NumDirections] = { 1, 0, -1, 0 };
-
-    TArray<int> DirectionIndex;
-    for (int i = 0; i < NumDirections; i++)
-    {
-        FIntPoint Direction = FIntPoint(XDirections[i], YDirections[i]);
-        DirectionMap.Add(Direction, false);
-    }
-    return DirectionMap;
-}
-
 /* Returns the direction to a unoccupied cell within the grid adj to the coordinates given - A Current direction can be passed in to weight the function to maintain the direction */
-FIntPoint UGraphManager::FindAdjUnoccupiedCell(const TArray<TArray<UGraphNode*>> Grid, int X, int Y)
-{
-    FRandomStream RandStream;
-    RandStream.GenerateNewSeed();
-
-    const int NumDirections = 4;
-    int XDirections[NumDirections] = { 0, 1, 0, -1 };
-    int YDirections[NumDirections] = { 1, 0, -1, 0 };
-
-    TArray<int> DirectionIndex;
-    for (int i = 0; i < NumDirections; i++)
-    {
-        DirectionIndex.Add(i);
-    }
-
-    for (int i = DirectionIndex.Num() - 1; i > 0; i--)
-    {
-        int j = FMath::RandRange(0, i);
-        DirectionIndex.Swap(i, j);
-    }
- 
-    // Check each direction for an unoccupied cell
-    FIntPoint NewDir = FIntPoint(0);
-    for (int Direction : DirectionIndex)
-    {
-        int NewX = X + XDirections[Direction];
-        int NewY = Y + YDirections[Direction];
-        if (NewX >= 0 && NewX < Grid.Num() && NewY >= 0 && NewY < Grid[0].Num() && Grid[NewX][NewY] == nullptr)// && !bVisited)
-        {
-            NewDir = FIntPoint(XDirections[Direction], YDirections[Direction]);
-            X = NewX;
-            Y = NewY;
-            break;
-        }
-    }
-
-    return NewDir;
-}
-
-/* Returns the direction to a unoccupied cell within the grid adj to the coordinates given - A Current direction can be passed in to weight the function to maintain the direction */
-FIntPoint UGraphManager::FindAdjUnoccupiedCell(const TArray<TArray<UGraphNode*>> Grid, int X, int Y, FIntPoint CurrentDir)
+FIntPoint UGraphManager::FindAdjUnoccupiedCell(const TArray<TArray<UGraphNode*>>& Grid, int X, int Y, FIntPoint CurrentDir)
 {
     FRandomStream RandStream;
     RandStream.GenerateNewSeed();
@@ -476,6 +438,48 @@ FIntPoint UGraphManager::FindAdjUnoccupiedCell(const TArray<TArray<UGraphNode*>>
     return NewDir;
 }
 
+void UGraphManager::InitialiseCoarseGrid(ULevelGraph* Level)
+{
+    TArray<TArray<UGraphNode*>> Layout = Level->Layout;
+    TArray<TArray<UGraphNode*>> CoarseGrid = Level->CoarseGrid;
+
+    int GridSize = Layout.Num() * 2;
+
+    CoarseGrid.SetNumZeroed(GridSize);
+    for (int x = 0; x < GridSize; x++)
+        CoarseGrid[x].SetNumZeroed(GridSize);
+
+    for (int x = 0; x < GridSize; x++)
+        for (int y = 0; y < GridSize; y++)
+        {
+            if (x % 2 != 0 && y % 2 != 0)
+                CoarseGrid[x][y] = Layout[x / 2][y / 2];
+        }
+    Level->CoarseGrid = CoarseGrid;
+}
+
+void UGraphManager::SetBetweenNodes(ULevelGraph* Level)
+{
+    /* Loop through the layout
+    *  Get the Edges of each node
+    *  Check the layoutCoords of each node
+    *  Compare the layoutCoords of From and To to work out direction to the To Node
+    *  Place a GraphNode ENodeType::EDGE at From (layoutCoords * 2) += DirectionToTo 
+    *  Node to be placed on the Coarse grid
+    *  Save the Direction in the Graph Node as that informs which corridor to spawn
+    */
+
+
+    TArray<TArray<UGraphNode*>> Layout = Level->Layout;
+    TArray<TArray<UGraphNode*>> CoarseGrid = Level->CoarseGrid;
+
+    for (int x = 0; x < CoarseGrid.Num(); x++)
+        for (int y = 0; y < CoarseGrid.Num(); y++)
+        {
+
+        }
+}
+
 bool UGraphManager::LayoutCycle(UGraph* Cycle, TArray<TArray<UGraphNode*>>& Grid, int AdjX, int AdjY)
 {
     /* In order to layout a cycle a unoccupied cell adj to the adjComp of the first cycle node needs to be selected
@@ -499,7 +503,8 @@ bool UGraphManager::LayoutCycle(UGraph* Cycle, TArray<TArray<UGraphNode*>>& Grid
     UGraphNode* Current = Cycle->Nodes[0];
 
     // Place the Cycle node onto the grid then store the direction from the AdjComp node to the cycleNode as OpposingDirection
-    FIntPoint OpposingDirection = FindAdjUnoccupiedCell(Grid, AdjX, AdjY);
+    FIntPoint CurrentDirection = FIntPoint::ZeroValue;
+    FIntPoint OpposingDirection = FindAdjUnoccupiedCell(Grid, AdjX, AdjY, CurrentDirection);
     // Then get the Direction opposing the direction to the Cycle node as the DirectionToAdjacent
     FIntPoint DirectionToAdjacent = GetOpposingDirection(OpposingDirection);
 
@@ -727,18 +732,6 @@ void UGraphManager::DepthFirstCompositeSearch(UGraphNode* Node, TArray<UGraphNod
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 /* XML Functions */
 
 void UGraphManager::LoadGraphGrammar(const FString& GrammarFile)
@@ -804,4 +797,21 @@ void UGraphManager::ParseRules(const FXmlNode* Root)
 
 void UGraphManager::ParseRecipes(const FXmlNode* Root)
 {
+    auto Element = Root->GetChildrenNodes();
+    for (auto CurrentRecipe : Element)
+    {
+        FString Name = CurrentRecipe->GetAttribute("name");
+
+        TArray<FString> RuleNames;
+        auto RecipeRules = CurrentRecipe->GetChildrenNodes();
+        for (auto Rule : RecipeRules)
+        {
+            RuleNames.Add(Rule->GetAttribute("name"));
+        }
+
+       URecipe* Recipe = NewObject<URecipe>();
+       Recipe->Initialise(Name, RuleNames);
+
+       Recipes.Add(Name, Recipe);
+    }
 }

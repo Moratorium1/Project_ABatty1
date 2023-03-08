@@ -45,16 +45,20 @@ private:
 
 	/* Grammar Rule Execution Functions */
 
+	/* Select a random recipe */
+	UFUNCTION()
+	FString ChooseRecipe();
+
 	/* */
 	UFUNCTION()
 	void ExecuteRecipe(const FString& RecipeName, ULevelGraph* Level);
 
-	UFUNCTION()
-	void ExecuteRule(const FString& RuleName, ULevelGraph* Level);
-
 	/* Given an array of FStrings that are the names of subgraphs, return a TArray of these subgraph weighted so that there is a greater number of  */
 	UFUNCTION()
 	UGraph* ChooseRight(TArray<FString> SubGraphNames);
+
+	UFUNCTION()
+	void ExecuteRule(const FString& RuleName, ULevelGraph* Level);
 
 	/* Graph Search Functions */
 
@@ -65,6 +69,7 @@ private:
 	/* Performs a BFS starting from a given node attempting to find the target subgraph, constructing the subgraph and marking the found edges */
 	UFUNCTION()
 	void BreadthFirstSubgraphSearch(UGraphNode* Node, TMap<UGraphNode*, bool>& Visited, UGraph* Subgraph, UGraph* Target);
+
 
 	/* Graph Transformation Functions */
 
@@ -84,32 +89,11 @@ private:
 	UGraphNode* CreateNodeOfType(const ENodeType NodeType);
 
 
-	/* Graph LayoutFunctions */
 
-	/* Loop through the levels Composite array laying out each one */
+	/* Graph LayoutFunctions - Function that turn a given graph into a level */
+
+	/* Sets the adjacent composite for every composite node except the start */
 	UFUNCTION()
-	bool LayoutComposites(ULevelGraph* Level);
-
-	/*  */
-	bool LayoutTree(UGraph* Tree, TArray<TArray<UGraphNode*>>& Grid, int AdjX, int AdjY);
-
-	bool LayoutHub(UGraph* Hub, TArray<TArray<UGraphNode*>>& Grid, int AdjX, int AdjY);
-
-
-	UFUNCTION()
-	TMap<FIntPoint, bool> GetDirectionMap();
-
-	/*  */
-	FIntPoint FindAdjUnoccupiedCell(const TArray<TArray<UGraphNode*>> Grid, int X, int Y);
-
-	FIntPoint FindAdjUnoccupiedCell(const TArray<TArray<UGraphNode*>> Grid, int X, int Y, FIntPoint CurrentDir);
-
-	/* */
-	bool LayoutCycle(UGraph* Cycle, TArray<TArray<UGraphNode*>>& Grid, int AdjX, int AdjY);
-
-	FIntPoint GetOpposingDirection(const FIntPoint& Direction);
-
-	/* Sets the adjacent composite for every composite node except the hub */
 	void SetAdjComposites(ULevelGraph* Level);
 
 	/* Splits the graph into its Tree, Cycle and Hub composites */
@@ -119,6 +103,33 @@ private:
 	/* DFS algorithm that collects the nodes of the composite */
 	UFUNCTION()
 	void DepthFirstCompositeSearch(UGraphNode* Node, TArray<UGraphNode*>& Visited, UGraph* Composite);
+
+	/* Loop through the levels Composite array laying out each one */
+	UFUNCTION()
+	bool LayoutComposites(ULevelGraph* Level);
+
+	/*  */
+	bool LayoutTree(UGraph* Tree, TArray<TArray<UGraphNode*>>& Grid, int AdjX, int AdjY);
+
+	/*  */
+	bool LayoutHub(UGraph* Hub, TArray<TArray<UGraphNode*>>& Grid, int AdjX, int AdjY);
+
+	/* */
+	bool LayoutCycle(UGraph* Cycle, TArray<TArray<UGraphNode*>>& Grid, int AdjX, int AdjY);
+
+	/* */
+	UFUNCTION()
+	FIntPoint GetOpposingDirection(const FIntPoint& Direction);
+
+	/*  */
+	FIntPoint FindAdjUnoccupiedCell(const TArray<TArray<UGraphNode*>>& Grid, int X, int Y, FIntPoint CurrentDir);
+
+	/* */
+	UFUNCTION()
+	void InitialiseCoarseGrid(ULevelGraph* Level);
+
+	UFUNCTION()
+	void SetBetweenNodes(ULevelGraph* Level);
 
 	/* XML Functions */
 

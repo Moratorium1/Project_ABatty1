@@ -3,6 +3,7 @@
 
 #include "ProjectGameInstance.h"
 #include "Kismet/KismetStringLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "GraphManager.h"
 #include "LevelManager.h"
@@ -41,4 +42,38 @@ void UProjectGameInstance::LoadPlayerModel(const FString& PlayerModelFile)
 FPlayerModel UProjectGameInstance::GetPlayerModel()
 {
 	return PlayerModel;
+}
+
+void UProjectGameInstance::IncreaseKillerType()
+{
+	PlayerModel.Killer += 5;
+	PlayerModel.Explorer -= 5;
+}
+
+void UProjectGameInstance::IncreaseAchieverType()
+{
+	PlayerModel.Achiever += 5;
+	PlayerModel.Socialiser -= 5;
+}
+
+void UProjectGameInstance::IncreaseSocialiserType()
+{
+	PlayerModel.Socialiser += 5;
+	PlayerModel.Achiever -= 5;
+}
+
+void UProjectGameInstance::IncreaseExplorerType()
+{
+	PlayerModel.Explorer += 5;
+	PlayerModel.Killer -= 5;
+}
+
+void UProjectGameInstance::NextLevel()
+{
+	/* 
+	*  Call GenerateLevel passing the new level value
+	*  Increase the level number
+	*/
+
+	LevelManager->GenerateLevel(++LevelNumber);
 }

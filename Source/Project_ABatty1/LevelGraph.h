@@ -32,4 +32,9 @@ public:
 
 	/* 2D Array of Nodes - Indexes represent the XY cooridnates of the nodes within the world */
 	TArray<TArray<UGraphNode*>> Layout;
+
+	/* An intermediate representation of the level adds between nodes */
+
+	TArray<TArray<UGraphNode*>> CoarseGrid;
+
 };

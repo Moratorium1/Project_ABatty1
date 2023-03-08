@@ -3,3 +3,20 @@
 
 #include "Recipe.h"
 
+void URecipe::Initialise(const FString& RecipeName, TArray<FString> RuleNames)
+{
+	Name = RecipeName;
+
+	SetRules(RuleNames);
+}
+
+void URecipe::SetRules(const TArray<FString> RuleNames)
+{
+	Rules = RuleNames;
+}
+
+TArray<FString> URecipe::GetRules()
+{
+	return Rules;
+}
+
