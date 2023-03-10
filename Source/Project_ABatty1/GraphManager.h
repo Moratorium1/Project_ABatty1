@@ -88,7 +88,12 @@ private:
 	/* Create a new node of a given type */
 	UGraphNode* CreateNodeOfType(const ENodeType NodeType);
 
+	/*  */
+	UFUNCTION()
+	void ResolveInjectionQueue(ULevelGraph* Level);
 
+	UFUNCTION()
+	void ClearInjectionQueue();
 
 	/* Graph LayoutFunctions - Function that turn a given graph into a level */
 
@@ -130,6 +135,10 @@ private:
 
 	UFUNCTION()
 	void SetBetweenNodes(ULevelGraph* Level);
+
+	UFUNCTION()
+	void InitialiseFineGrid(ULevelGraph* Level);
+
 
 	/* XML Functions */
 

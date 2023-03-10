@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "RoomManager.h"
 #include "LevelGraph.generated.h"
 
 class UGraph;
@@ -34,7 +35,10 @@ public:
 	TArray<TArray<UGraphNode*>> Layout;
 
 	/* An intermediate representation of the level adds between nodes */
-
 	TArray<TArray<UGraphNode*>> CoarseGrid;
 
+	TArray<TArray<UGraphNode*>> FineGrid;
+
+	/* An array that represents the actual room for the graphnode */
+	TMap<UGraphNode*, TArray<TArray<ETileType>>> Rooms;
 };

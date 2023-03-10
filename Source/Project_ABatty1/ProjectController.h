@@ -46,4 +46,7 @@ private:
 	UFUNCTION()
 	void CallNextLevel();
 
+	UFUNCTION()
+	void AddQuestToInjectionQueue();
+
 };

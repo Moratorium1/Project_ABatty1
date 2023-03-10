@@ -7,4 +7,10 @@
 void ULevelGraph::Initialise()
 {
 	OverallLevel = NewObject<UGraph>();
+
+	FString nodes = "Z";
+	FString edges = "";
+
+	OverallLevel->SetNodesString(nodes);
+	OverallLevel->SetEdgesString(edges);
 }

@@ -275,6 +275,17 @@ UGraphNode* UGraphManager::CreateNodeOfType(const ENodeType NodeType)
     return Node;
 }
 
+void UGraphManager::ResolveInjectionQueue(ULevelGraph* Level)
+{
+    for (FString RuleQueued : GameInstance->InjectionQueue)
+        ExecuteRule(RuleQueued, Level);
+}
+
+void UGraphManager::ClearInjectionQueue()
+{
+    GameInstance->InjectionQueue.Empty();
+}
+
 /* TRANSFORM FUNCTIONS END */
 
 /* GRAPH LAYOUT FUNCTIONS START */
@@ -440,10 +451,12 @@ FIntPoint UGraphManager::FindAdjUnoccupiedCell(const TArray<TArray<UGraphNode*>>
 
 void UGraphManager::InitialiseCoarseGrid(ULevelGraph* Level)
 {
+    int CoarseFactor = GameInstance->CoarseFactor;
+
     TArray<TArray<UGraphNode*>> Layout = Level->Layout;
     TArray<TArray<UGraphNode*>> CoarseGrid = Level->CoarseGrid;
 
-    int GridSize = Layout.Num() * 2;
+    int GridSize = Layout.Num() * CoarseFactor;
 
     CoarseGrid.SetNumZeroed(GridSize);
     for (int x = 0; x < GridSize; x++)
@@ -452,32 +465,70 @@ void UGraphManager::InitialiseCoarseGrid(ULevelGraph* Level)
     for (int x = 0; x < GridSize; x++)
         for (int y = 0; y < GridSize; y++)
         {
-            if (x % 2 != 0 && y % 2 != 0)
-                CoarseGrid[x][y] = Layout[x / 2][y / 2];
+            if (x % CoarseFactor != 0 && y % CoarseFactor != 0)
+            {
+                CoarseGrid[x][y] = Layout[x / CoarseFactor][y / CoarseFactor];
+
+                if (CoarseGrid[x][y])
+                    CoarseGrid[x][y]->LayoutCoords = FIntPoint(x, y);
+            }
         }
     Level->CoarseGrid = CoarseGrid;
+    SetBetweenNodes(Level);
 }
 
 void UGraphManager::SetBetweenNodes(ULevelGraph* Level)
 {
-    /* Loop through the layout
-    *  Get the Edges of each node
-    *  Check the layoutCoords of each node
-    *  Compare the layoutCoords of From and To to work out direction to the To Node
-    *  Place a GraphNode ENodeType::EDGE at From (layoutCoords * 2) += DirectionToTo 
-    *  Node to be placed on the Coarse grid
-    *  Save the Direction in the Graph Node as that informs which corridor to spawn
+    /* Loop through the nodes of a level
+    *  if the node has an edge
+    *  get the To node
+    *  compare the LayoutCoords of the From and To to determine the direcion of the node in the layout
+    *  place a UGraphNode of ENodeType::EDGE at the From LayoutCoords + DirectionToTo/2 in the coarseGrid
+    *  set the edge nodes EdgeDirection for use in laying out the level  
+    * 
+    *  This should result in the CoarseGrid having an edge node between all connected nodes
     */
-
 
     TArray<TArray<UGraphNode*>> Layout = Level->Layout;
     TArray<TArray<UGraphNode*>> CoarseGrid = Level->CoarseGrid;
 
-    for (int x = 0; x < CoarseGrid.Num(); x++)
-        for (int y = 0; y < CoarseGrid.Num(); y++)
-        {
+    for (UGraphNode* Node : Level->OverallLevel->Nodes)
+    {
+        if (Node->GetEdges().Num())
+            for (UGraphEdge* Edge : Node->GetEdges())
+            {
+                FIntPoint FromNodeCoords = Node->LayoutCoords;
+                FIntPoint ToNodeCoords = Edge->GetTo()->LayoutCoords;
+                FIntPoint DirectionToTo = FIntPoint(ToNodeCoords.X - FromNodeCoords.X, ToNodeCoords.Y - FromNodeCoords.Y);
 
+                UGraphNode* NewEdge = CreateNodeOfType(ENodeType::EDGE);
+                NewEdge->LayoutCoords = FIntPoint(FromNodeCoords.X + (DirectionToTo.X/2), FromNodeCoords.Y + (DirectionToTo.Y/2));
+                NewEdge->EdgeDirection = FIntPoint(DirectionToTo.X / 2, DirectionToTo.Y / 2);
+
+                CoarseGrid[FromNodeCoords.X + (DirectionToTo.X/2)][FromNodeCoords.Y + (DirectionToTo.Y/2)] = NewEdge;
+            }
+    }
+    Level->CoarseGrid = CoarseGrid;
+}
+
+void UGraphManager::InitialiseFineGrid(ULevelGraph* Level)
+{
+    TArray<TArray<UGraphNode*>> CoarseGrid = Level->CoarseGrid;
+    TArray<TArray<UGraphNode*>> FineGrid = Level->FineGrid;
+
+    int FineFactor = GameInstance->FineFactor;
+    int GridSize = CoarseGrid.Num() * FineFactor;
+
+    FineGrid.SetNumZeroed(GridSize);
+    for (int x = 0; x < GridSize; x++)
+        FineGrid[x].SetNumZeroed(GridSize);
+
+    for (int x = 0; x < GridSize; x++)
+        for (int y = 0; y < GridSize; y++)
+        {
+                FineGrid[x][y] = CoarseGrid[FMath::Floor(x / FineFactor)][FMath::Floor(y / FineFactor)];
         }
+    Level->FineGrid = FineGrid;
 }
 
 bool UGraphManager::LayoutCycle(UGraph* Cycle, TArray<TArray<UGraphNode*>>& Grid, int AdjX, int AdjY)

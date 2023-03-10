@@ -183,9 +183,9 @@ TArray<ENodeType> UGraph::StringToENodeType(const FString String)
 			NodeTypes.Add(ENodeType::goal);
 
 		else if (Type.Equals(TEXT("Q")))
-			NodeTypes.Add(ENodeType::GOAL);
+			NodeTypes.Add(ENodeType::QUEST);
 		else if (Type.Equals(TEXT("q")))
-			NodeTypes.Add(ENodeType::goal);
+			NodeTypes.Add(ENodeType::QUEST);
 
 		else
 			NodeTypes.Add(ENodeType::INVALID);

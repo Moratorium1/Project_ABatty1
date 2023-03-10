@@ -9,6 +9,7 @@
 class FXmlNode;
 class UGraphManager;
 class ULevelManager;
+class URoomManager;
 class AATile;
 
 /* Holds values corresponding to Bartles Player Types */
@@ -89,6 +90,14 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Tile")
 	TSubclassOf<AATile> ExplorerClass;
 
+	UPROPERTY(EditAnywhere, Category = "Tile")
+	TSubclassOf<AATile> QuestClass;
+
+	UPROPERTY(EditAnywhere, Category = "Tile")
+	TSubclassOf<AATile> StartTileClass;
+
+	UPROPERTY()
+	TArray<FString> InjectionQueue;
 
 	UPROPERTY(EditAnywhere, Category = "Tile")
 	int TileSize = 250;
@@ -96,6 +105,16 @@ public:
 	/* The Maximum number of attempts a composite can take to layout */
 	UPROPERTY(EditAnywhere, Category = "LevelManager")
 	int LayoutAttempts = 4;
+
+	UPROPERTY(EditAnywhere, Category = "LevelManager")
+	int CoarseFactor = 2;
+
+	UPROPERTY(EditAnywhere, Category = "LevelManager")
+	int FineFactor = 10;
+
+	UPROPERTY(EditAnywhere, Category = "Room")
+	int RoomSize = 9;
+
 
 	/* Level Number corresponds to the index of the LevelManagers Levels Array - incremented upon level completion */
 	UPROPERTY()
@@ -107,12 +126,15 @@ private:
 	UPROPERTY()
 	FPlayerModel PlayerModel;
 
-	/* Contains all graph transformation functions  */
-	UPROPERTY()
-	UGraphManager* GraphManager;
-
 	/* Holds all Level Graphs and calls on GraphManager to edit them */
 	UPROPERTY()
 	ULevelManager* LevelManager;
 
+	/* Contains all graph transformation functions  */
+	UPROPERTY()
+	UGraphManager* GraphManager;
+
+	/* Contains all room generation functions */
+	UPROPERTY()
+	URoomManager* RoomManager;
 };

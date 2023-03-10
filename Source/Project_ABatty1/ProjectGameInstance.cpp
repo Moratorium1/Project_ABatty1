@@ -5,23 +5,29 @@
 #include "Kismet/KismetStringLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
-#include "GraphManager.h"
 #include "LevelManager.h"
+#include "GraphManager.h"
+#include "RoomManager.h"
 
 #include "XmlFile.h"
 #include <Runtime/XmlParser/Public/XmlFile.h>
 
-
+/* Create the game instance subsystems that handle the generation of levels */
 void UProjectGameInstance::Init()
 {
 	Super::Init();
 
 	LoadPlayerModel(TEXT("PlayerModel.xml"));
 
-	GraphManager = NewObject<UGraphManager>(this);
-
+	/* Holds all the levels and calls upon the other managers to edit them */
 	LevelManager = NewObject<ULevelManager>(this);
 	LevelManager->Initialise();
+
+	/* Handles the Graph generation of levels */
+	GraphManager = NewObject<UGraphManager>(this);
+
+	/* Handles the generation of rooms in levels */
+	RoomManager = NewObject<URoomManager>(this);
 }
 
 /* Set the player model values to those stored in Xml */
@@ -68,6 +74,7 @@ void UProjectGameInstance::IncreaseExplorerType()
 	PlayerModel.Killer -= 5;
 }
 
+/* Increase the Level Number and  */
 void UProjectGameInstance::NextLevel()
 {
 	/* 

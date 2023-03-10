@@ -7,6 +7,7 @@
 #include "LevelManager.generated.h"
 
 class UProjectGameInstance;
+class URoomManager;
 class UGraphManager;
 class ULevelGraph;
 class AATile;
@@ -27,6 +28,9 @@ public:
 	UFUNCTION()
 	void SpawnLevel(const int& LevelNumber);
 
+	UFUNCTION()
+	void SpawnLevel2(const int& LevelNumber);
+
 private:
 
 	/* Reference to the GameInstance required to access the player type model */
@@ -35,6 +39,10 @@ private:
 
 	UPROPERTY()
 	UGraphManager* GraphManager = nullptr;
+
+	/*  */
+	UPROPERTY()
+	URoomManager* RoomManager = nullptr;
 
 	UPROPERTY()
 	TArray<ULevelGraph*> Levels;

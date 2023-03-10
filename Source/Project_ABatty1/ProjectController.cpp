@@ -3,6 +3,7 @@
 
 #include "ProjectController.h"
 #include "ProjectCharacter.h"
+#include "ProjectGameInstance.h"
 
 void AProjectController::BeginPlay()
 {
@@ -22,6 +23,9 @@ void AProjectController::SetupInputComponent()
 
 	/* Level generation binds  */
 	InputComponent->BindAction("NextLevel", IE_Pressed, this, &AProjectController::CallNextLevel);
+	InputComponent->BindAction("AddQuest", IE_Pressed, this, &AProjectController::AddQuestToInjectionQueue);
+
+	/* Player Type binds */
 	InputComponent->BindAction("Killer", IE_Pressed, this, &AProjectController::CallIncreaseKillerType);
 	InputComponent->BindAction("Achiever", IE_Pressed, this, &AProjectController::CallIncreaseAchieverType);
 	InputComponent->BindAction("Socialiser", IE_Pressed, this, &AProjectController::CallIncreaseSocialiserType);
@@ -92,4 +96,12 @@ void AProjectController::CallNextLevel()
 
 	if (GetGameInstance()->IsA(UProjectGameInstance::StaticClass()))
 		Cast<UProjectGameInstance>(GetGameInstance())->NextLevel();
+}
+
+void AProjectController::AddQuestToInjectionQueue()
+{
+	if (GetGameInstance() == nullptr) return;
+
+	if (GetGameInstance()->IsA(UProjectGameInstance::StaticClass()))
+		Cast<UProjectGameInstance>(GetGameInstance())->InjectionQueue.Add("Quest");
 }

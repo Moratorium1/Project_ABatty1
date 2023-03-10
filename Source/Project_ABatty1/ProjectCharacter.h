@@ -32,6 +32,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Model")
 	UStaticMeshComponent* Model;
 
+	UPROPERTY(EditAnywhere, Category = "Tile")
+	TSubclassOf<AActor> StartClass;
+
 	/* Camera */
 	UPROPERTY(VisibleAnywhere, Category = "SpringArm")
 	class USpringArmComponent* SpringArm;

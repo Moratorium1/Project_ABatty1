@@ -17,7 +17,7 @@ AATile::AATile()
 void AATile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame

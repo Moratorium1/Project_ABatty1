@@ -57,6 +57,7 @@ enum class ENodeType
 
 	MAX
 };
+
 UCLASS()
 class PROJECT_ABATTY1_API UGraph : public UObject
 {

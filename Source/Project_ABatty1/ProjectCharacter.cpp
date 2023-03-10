@@ -48,6 +48,15 @@ void AProjectCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	AActor* Start = UGameplayStatics::GetActorOfClass(GetWorld(), StartClass);
+
+	if (Start != nullptr)
+	{
+		FVector StartLocation = Start->GetActorLocation();
+		FVector PlayerStartLocation = FVector(StartLocation.X, StartLocation.Y, StartLocation.Z + 100);
+
+		SetActorLocation(PlayerStartLocation);
+	}
 }
 
 // Called every frame

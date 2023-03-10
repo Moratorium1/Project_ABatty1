@@ -36,6 +36,10 @@ public:
 	/* Indexes within the ULevelGraphs 2D Array for the Layout of the level - used only for composite nodes */
 	FIntPoint LayoutCoords;
 
+	/* Only used by Edge Nodes - Denotes the direction of the edge - The direction from the FromNode to the ToNode */
+	UPROPERTY()
+	FIntPoint EdgeDirection = FIntPoint::ZeroValue;
+
 private:
 
 	UPROPERTY()
@@ -51,4 +55,5 @@ private:
 	/* Returns true if the node has an edge to the same types of nodes as the passed node - Still returns true of the node has additional edges */
 	UFUNCTION()
 	bool EdgeMatch(UGraphNode* Node);
+
 };

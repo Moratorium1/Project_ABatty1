@@ -124,6 +124,8 @@
 
 		<Graph Name="HubTree1" Node="iH"	Edge="01"/>
 		
+		<Graph Name="InjectQuest" Node="iQ"	Edge="01"/>
+
 
 		<!-- Player Type Subgraphs - Nodes that denote player type specific room types -->
 		
@@ -200,7 +202,11 @@
 			<Right Name="MajorTree2"/> 
 			-->
 		</Rule>
-		
+
+		<Rule Name="Quest" Left="Inject" Mode="Normal">
+			<Right Name="InjectQuest"/>
+		</Rule>
+
 	</Rules>
 	
 	
