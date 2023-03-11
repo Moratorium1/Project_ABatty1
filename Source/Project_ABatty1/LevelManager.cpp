@@ -7,7 +7,11 @@
 #include "RoomManager.h"
 #include "GraphManager.h"
 #include "GraphNode.h"
-#include "ATile.h"
+#include "Tile.h"
+#include "SpawnTile.h"
+#include "EnemyBase.h"
+
+#include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "Engine/LevelStreamingDynamic.h"
@@ -25,8 +29,6 @@ void ULevelManager::Initialise()
 
 	// Initialise the array with 10 elements of nullptr then replace each with its own LevelGraph
 	Levels.Init(nullptr, 10);
-
-	GenerateLevel(0);
 }
 
 void ULevelManager::GenerateLevel(const int& LevelNumber)
@@ -41,8 +43,10 @@ void ULevelManager::GenerateLevel(const int& LevelNumber)
 	*	If LayoutComposite returns false, Call GenerateLevel and start again
 	*/
 
-	// Destory all exisiting tiles
-	for (TObjectIterator<AATile> Itr; Itr; ++Itr) Itr->Destroy();
+	// Destory all exisiting tiles 
+	// Swap to ATile
+	for (TObjectIterator<ATile> Itr; Itr; ++Itr) Itr->Destroy();
+	for (TObjectIterator<AEnemyBase> Itr; Itr; ++Itr) Itr->Destroy();
 
 	// Initialise the Level - Add the starting node
 	ULevelGraph* LevelGraph = NewObject<ULevelGraph>();
@@ -80,74 +84,10 @@ void ULevelManager::GenerateLevel(const int& LevelNumber)
 	//SpawnLevel(LevelNumber);
 
 	// Spawns tiles into the world
-	SpawnLevel2(LevelNumber);
+	SpawnLevel(LevelNumber);
 }
 
 void ULevelManager::SpawnLevel(const int& LevelNumber)
-{
-	TArray<TArray<UGraphNode*>> CurrentLevel = Levels[LevelNumber]->FineGrid;
-
-	int TileSize = GameInstance->TileSize;
-	int Z = 200;
-
-	for (int X = 0; X < CurrentLevel.Num() -1; X++)
-		for (int Y = 0; Y < CurrentLevel.Num() - 1; Y++)
-			if (CurrentLevel[X][Y] != nullptr)
-			{
-				ENodeType Type = CurrentLevel[X][Y]->GetType();
-
-
-
-				switch (Type)
-				{
-				case ENodeType::START:
-					GetWorld()->SpawnActor<AATile>(GameInstance->StartClass, FVector(X * TileSize, Y * TileSize, Z), FRotator::ZeroRotator);
-					break;
-
-				case ENodeType::start:
-					GetWorld()->SpawnActor<AATile>(GameInstance->StartClass, FVector(X * TileSize, Y * TileSize, Z), FRotator::ZeroRotator);
-					break;
-
-				case ENodeType::hub:
-					GetWorld()->SpawnActor<AATile>(GameInstance->HubClass, FVector(X * TileSize, Y * TileSize, Z), FRotator::ZeroRotator);
-					break;
-
-				case ENodeType::HUB:
-					GetWorld()->SpawnActor<AATile>(GameInstance->HubClass, FVector(X * TileSize, Y * TileSize, Z), FRotator::ZeroRotator);
-					break;
-
-				case ENodeType::inject:
-					GetWorld()->SpawnActor<AATile>(GameInstance->InjectClass, FVector(X * TileSize, Y * TileSize, Z), FRotator::ZeroRotator);
-					break;
-
-				case ENodeType::INJECT:
-					GetWorld()->SpawnActor<AATile>(GameInstance->InjectClass, FVector(X * TileSize, Y * TileSize, Z), FRotator::ZeroRotator);
-					break;
-
-				case ENodeType::tree:
-					GetWorld()->SpawnActor<AATile>(GameInstance->TreeClass, FVector(X * TileSize, Y * TileSize, Z), FRotator::ZeroRotator);
-					break;
-
-				// Cycles not implemented
-				case ENodeType::cycle:
-					GetWorld()->SpawnActor<AATile>(GameInstance->CycleClass, FVector(X * TileSize, Y * TileSize, Z), FRotator::ZeroRotator);
-					break;
-
-				case ENodeType::EDGE:
-					GetWorld()->SpawnActor<AATile>(GameInstance->CycleClass, FVector(X * TileSize, Y * TileSize, Z), FRotator::ZeroRotator);
-					break;
-
-				case ENodeType::QUEST:
-					GetWorld()->SpawnActor<AATile>(GameInstance->QuestClass, FVector(X * TileSize, Y * TileSize, Z), FRotator::ZeroRotator);
-					break;
-
-				default:
-					GetWorld()->SpawnActor<AATile>(GameInstance->TileClass, FVector(X * TileSize, Y * TileSize, Z), FRotator::ZeroRotator);
-				}
-			}
-}
-
-void ULevelManager::SpawnLevel2(const int& LevelNumber)
 {
 	ULevelGraph* Level = Levels[LevelNumber];
 
@@ -164,12 +104,20 @@ void ULevelManager::SpawnLevel2(const int& LevelNumber)
 			{
 				switch (Room[x][y])
 				{
-				case ETileType::FLOOR:
-					GetWorld()->SpawnActor<AATile>(GameInstance->TileClass, FVector(RoomPosition.X + (x * GameInstance->TileSize), RoomPosition.Y + (y * GameInstance->TileSize), 0), FRotator::ZeroRotator);
+				case ETileType::START:
+					GetWorld()->SpawnActor<ATile>(GameInstance->StartTileClass, FVector(RoomPosition.X + (x * GameInstance->TileSize), RoomPosition.Y + (y * GameInstance->TileSize), 0), FRotator::ZeroRotator);
 					break;
 
-				case ETileType::START:
-					GetWorld()->SpawnActor<AATile>(GameInstance->StartTileClass, FVector(RoomPosition.X + (x * GameInstance->TileSize), RoomPosition.Y + (y * GameInstance->TileSize), 50), FRotator::ZeroRotator);
+				case ETileType::FLOOR:
+					GetWorld()->SpawnActor<ATile>(GameInstance->TileClass, FVector(RoomPosition.X + (x * GameInstance->TileSize), RoomPosition.Y + (y * GameInstance->TileSize), 0), FRotator::ZeroRotator);
+					break;
+
+				case ETileType::ENEMY:
+					GetWorld()->SpawnActor<ATile>(GameInstance->EnemyTileClass, FVector(RoomPosition.X + (x * GameInstance->TileSize), RoomPosition.Y + (y * GameInstance->TileSize), 0), FRotator::ZeroRotator);
+					break;
+
+				case ETileType::GOAL:
+					GetWorld()->SpawnActor<ATile>(GameInstance->GoalTileClass, FVector(RoomPosition.X + (x * GameInstance->TileSize), RoomPosition.Y + (y * GameInstance->TileSize), -20), FRotator::ZeroRotator);
 					break;
 
 				}

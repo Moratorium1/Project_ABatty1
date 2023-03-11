@@ -11,16 +11,30 @@ class UGraphManager;
 class ULevelManager;
 class URoomManager;
 class AATile;
+class ATile;
 
 /* Holds values corresponding to Bartles Player Types */
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FPlayerModel
 {
 	GENERATED_BODY()
 
+	UPROPERTY()
+	int Maximum = 50;
+
+	UPROPERTY()
+	int Minimum = 0;
+
+	UPROPERTY(BlueprintReadWrite, Category="PlayerType")
 	int Killer = 25;
+
+	UPROPERTY(BlueprintReadWrite, Category = "PlayerType")
 	int Achiever = 25;
+
+	UPROPERTY(BlueprintReadWrite, Category = "PlayerType")
 	int Socialiser = 25;
+
+	UPROPERTY(BlueprintReadWrite, Category = "PlayerType")
 	int Explorer = 25;
 };
 
@@ -35,69 +49,77 @@ public:
 	/* Initialises the Game Instance - Creating the Graph and Level manager subsystems */
 	virtual void Init() override;
 
+	/* Player Model Functions */
+
 	/* Loads the player model */
 	UFUNCTION()
 	void LoadPlayerModel(const FString& PlayerModelFile);
 
+	/* Returns the player model */
 	UFUNCTION()
 	FPlayerModel GetPlayerModel();
 
-	UFUNCTION()
+	/* Increases the player type decreases the opposing player type */
+	UFUNCTION(BlueprintCallable)
 	void IncreaseKillerType();
 
-	UFUNCTION()
+	/* Returns the value of the player type */
+	UFUNCTION(BlueprintCallable)
+	int GetKillerType();
+
+	/* Increases the player type decreases the opposing player type */
+	UFUNCTION(BlueprintCallable)
 	void IncreaseAchieverType();
 
-	UFUNCTION()
+	/* Returns the value of the player type */
+	UFUNCTION(BlueprintCallable)
+	int GetAchieverType();
+
+	/* Increases the player type decreases the opposing player type */
+	UFUNCTION(BlueprintCallable)
 	void IncreaseSocialiserType();
 
-	UFUNCTION()
+	/* Returns the value of the player type */
+	UFUNCTION(BlueprintCallable)
+	int GetSocialiserType();
+
+	/* Increases the player type decreases the opposing player type */
+	UFUNCTION(BlueprintCallable)
 	void IncreaseExplorerType();
 
-	UFUNCTION()
+	/* Returns the value of the player type */
+	UFUNCTION(BlueprintCallable)
+	int GetExplorerType();
+
+	/*  */
+
+	/* Holds rules input by the player */
+	UPROPERTY()
+	TArray<FString> InjectionQueue;
+
+	/* Places a quest rule into the Injection Queue */
+	UFUNCTION(BlueprintCallable)
+	void InjectQuest();
+
+	/* Generates and loads the next level */
+	UFUNCTION(BlueprintCallable)
 	void NextLevel();
 
 	/* Tile Information */
 
 	UPROPERTY(EditAnywhere, Category = "Tile")
-	TSubclassOf<AATile> TileClass;
+	TSubclassOf<ATile> TileClass;
+
+	// New Tiles
 
 	UPROPERTY(EditAnywhere, Category = "Tile")
-	TSubclassOf<AATile> StartClass;
+	TSubclassOf<ATile> StartTileClass;
 
 	UPROPERTY(EditAnywhere, Category = "Tile")
-	TSubclassOf<AATile> HubClass;
+	TSubclassOf<ATile> EnemyTileClass;
 
 	UPROPERTY(EditAnywhere, Category = "Tile")
-	TSubclassOf<AATile> InjectClass;
-
-	UPROPERTY(EditAnywhere, Category = "Tile")
-	TSubclassOf<AATile> TreeClass;
-
-	UPROPERTY(EditAnywhere, Category = "Tile")
-	TSubclassOf<AATile> CycleClass;
-
-
-	UPROPERTY(EditAnywhere, Category = "Tile")
-	TSubclassOf<AATile> KillerClass;
-
-	UPROPERTY(EditAnywhere, Category = "Tile")
-	TSubclassOf<AATile> AchieverClass;
-
-	UPROPERTY(EditAnywhere, Category = "Tile")
-	TSubclassOf<AATile> SocialiserClass;
-
-	UPROPERTY(EditAnywhere, Category = "Tile")
-	TSubclassOf<AATile> ExplorerClass;
-
-	UPROPERTY(EditAnywhere, Category = "Tile")
-	TSubclassOf<AATile> QuestClass;
-
-	UPROPERTY(EditAnywhere, Category = "Tile")
-	TSubclassOf<AATile> StartTileClass;
-
-	UPROPERTY()
-	TArray<FString> InjectionQueue;
+	TSubclassOf<ATile> GoalTileClass;
 
 	UPROPERTY(EditAnywhere, Category = "Tile")
 	int TileSize = 250;
@@ -115,6 +137,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Room")
 	int RoomSize = 9;
 
+	UPROPERTY(EditAnywhere, Category = "LevelManager")
+	int LevelNumMax = 9;
 
 	/* Level Number corresponds to the index of the LevelManagers Levels Array - incremented upon level completion */
 	UPROPERTY()

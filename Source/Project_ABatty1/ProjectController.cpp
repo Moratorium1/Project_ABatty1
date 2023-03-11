@@ -103,5 +103,5 @@ void AProjectController::AddQuestToInjectionQueue()
 	if (GetGameInstance() == nullptr) return;
 
 	if (GetGameInstance()->IsA(UProjectGameInstance::StaticClass()))
-		Cast<UProjectGameInstance>(GetGameInstance())->InjectionQueue.Add("Quest");
+		Cast<UProjectGameInstance>(GetGameInstance())->InjectQuest();
 }

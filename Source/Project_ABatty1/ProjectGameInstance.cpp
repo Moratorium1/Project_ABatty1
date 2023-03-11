@@ -52,26 +52,63 @@ FPlayerModel UProjectGameInstance::GetPlayerModel()
 
 void UProjectGameInstance::IncreaseKillerType()
 {
-	PlayerModel.Killer += 5;
-	PlayerModel.Explorer -= 5;
+	if (PlayerModel.Killer < PlayerModel.Maximum)
+	{
+		PlayerModel.Killer += 5;
+		PlayerModel.Explorer -= 5;
+	}
+}
+
+int UProjectGameInstance::GetKillerType()
+{
+	return PlayerModel.Killer;
 }
 
 void UProjectGameInstance::IncreaseAchieverType()
 {
-	PlayerModel.Achiever += 5;
-	PlayerModel.Socialiser -= 5;
+	if (PlayerModel.Achiever < PlayerModel.Maximum)
+	{
+		PlayerModel.Achiever += 5;
+		PlayerModel.Socialiser -= 5;
+	}
+}
+
+int UProjectGameInstance::GetAchieverType()
+{
+	return PlayerModel.Achiever;;
 }
 
 void UProjectGameInstance::IncreaseSocialiserType()
 {
-	PlayerModel.Socialiser += 5;
-	PlayerModel.Achiever -= 5;
+	if (PlayerModel.Socialiser < PlayerModel.Maximum)
+	{
+		PlayerModel.Socialiser += 5;
+		PlayerModel.Achiever -= 5;
+	}
+}
+
+int UProjectGameInstance::GetSocialiserType()
+{
+	return PlayerModel.Socialiser;
 }
 
 void UProjectGameInstance::IncreaseExplorerType()
 {
-	PlayerModel.Explorer += 5;
-	PlayerModel.Killer -= 5;
+	if (PlayerModel.Explorer < PlayerModel.Maximum)
+	{
+		PlayerModel.Explorer += 5;
+		PlayerModel.Killer -= 5;
+	}
+}
+
+int UProjectGameInstance::GetExplorerType()
+{
+	return PlayerModel.Explorer;
+}
+
+void UProjectGameInstance::InjectQuest()
+{
+	InjectionQueue.Add("Quest");
 }
 
 /* Increase the Level Number and  */
@@ -81,6 +118,11 @@ void UProjectGameInstance::NextLevel()
 	*  Call GenerateLevel passing the new level value
 	*  Increase the level number
 	*/
-
-	LevelManager->GenerateLevel(++LevelNumber);
+	if (LevelNumber < LevelNumMax)
+		LevelManager->GenerateLevel(++LevelNumber);
+	else
+	{
+		FLatentActionInfo info;
+		UGameplayStatics::LoadStreamLevel(GetWorld(), FName("MainMenuMap"), true, true, info);
+	}
 }

@@ -118,10 +118,6 @@ FString UGraphManager::ChooseRecipe()
 /* Find all matching subgrpahs within a Level - Output a TArray of the matching subgraphs */
 bool UGraphManager::FindSubgraph(ULevelGraph* Level, UGraph* Subgraph, TArray<UGraph*>& FoundGraphs)
 {
-    /*
-        Create a TMap of Visited Nodes 
-    */
-
     UGraph* Graph = Level->OverallLevel;
 
     /* Create a map to track which nodes have been visited */
@@ -145,6 +141,7 @@ bool UGraphManager::FindSubgraph(ULevelGraph* Level, UGraph* Subgraph, TArray<UG
         }
     }
 
+    // returns true if Found Graphs is not empty and False if it is empty
     return !FoundGraphs.IsEmpty();
 }
 
@@ -275,12 +272,14 @@ UGraphNode* UGraphManager::CreateNodeOfType(const ENodeType NodeType)
     return Node;
 }
 
+/* Executes all the injected rules */
 void UGraphManager::ResolveInjectionQueue(ULevelGraph* Level)
 {
     for (FString RuleQueued : GameInstance->InjectionQueue)
         ExecuteRule(RuleQueued, Level);
 }
 
+/* Empties the injection queue */
 void UGraphManager::ClearInjectionQueue()
 {
     GameInstance->InjectionQueue.Empty();

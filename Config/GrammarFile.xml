@@ -126,6 +126,7 @@
 		
 		<Graph Name="InjectQuest" Node="iQ"	Edge="01"/>
 
+		<Graph Name="InjectGoal" Node="itG"	Edge="0112"/>
 
 		<!-- Player Type Subgraphs - Nodes that denote player type specific room types -->
 		
@@ -189,7 +190,7 @@
 		</Rule>
 
 		<Rule Name="InjectGoal" Left="Inject" Mode="Normal">
-			<Right Name="BossWalkThrough"/>
+			<Right Name="InjectGoal"/>
 		</Rule>
 		
 		
@@ -218,15 +219,19 @@
 			<Rule Name="Start"/>
 			<Rule Name="ResolveTree"/>
 			<Rule Name="InjectTree"/>
-			<Rule Name="ResolveTree"/>
+			<Rule Name="InjectGoal" />
+			<!-- <Rule Name="ResolveTree"/> -->
 		</Recipe>
+	
 
+		
 		<Recipe Name="Recipe2">
 			<Rule Name="Start"/>
 			<Rule Name="ResolveTree"/>
 			<Rule Name="InjectHub"/>
 			<Rule Name="Hub"/>
-			<Rule Name="ResolveTree"/>
+			<Rule Name="InjectGoal"/>
+			<!-- <Rule Name="ResolveTree"/> -->
 		</Recipe>
 		
 

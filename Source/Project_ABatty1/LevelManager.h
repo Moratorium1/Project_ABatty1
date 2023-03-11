@@ -11,6 +11,7 @@ class URoomManager;
 class UGraphManager;
 class ULevelGraph;
 class AATile;
+class ATile;
 
 UCLASS()
 class PROJECT_ABATTY1_API ULevelManager : public UGameInstanceSubsystem
@@ -27,9 +28,6 @@ public:
 
 	UFUNCTION()
 	void SpawnLevel(const int& LevelNumber);
-
-	UFUNCTION()
-	void SpawnLevel2(const int& LevelNumber);
 
 private:
 

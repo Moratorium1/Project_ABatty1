@@ -68,6 +68,10 @@ void URoomManager::GenerateRooms(ULevelGraph* Level)
             Room = GenerateEdge(Level, RoomKey);
             break;
 
+        case ENodeType::GOAL:
+            Room = GenerateGoalRoom(Level, RoomKey);
+            break;
+
         default:
             Room = GenerateRoom(Level, RoomKey);
         }
@@ -76,23 +80,43 @@ void URoomManager::GenerateRooms(ULevelGraph* Level)
     }
 }
 
-TArray<TArray<ETileType>> URoomManager::GenerateStartRoom(ULevelGraph* Level, UGraphNode* RoomKey)
-{
-    TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
-    Room = GenerateRoom(Level, RoomKey);
-
-    Room[RoomSize / 2][RoomSize / 2] = ETileType::START;
-    
-    return Room;
-}
-
-TArray<TArray<ETileType>> URoomManager::GenerateRoom(ULevelGraph* Level, UGraphNode* RoomKey)
+TArray<TArray<ETileType>> URoomManager::GenerateBaseRoom(ULevelGraph* Level, UGraphNode* RoomKey)
 {
     TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
 
     for (int x = 0; x < RoomSize; x++)
         for (int y = 0; y < RoomSize; y++)
             Room[x][y] = ETileType::FLOOR;
+
+    return Room;
+}
+
+TArray<TArray<ETileType>> URoomManager::GenerateStartRoom(ULevelGraph* Level, UGraphNode* RoomKey)
+{
+    TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
+    Room = GenerateBaseRoom(Level, RoomKey);
+
+    Room[RoomSize / 2][RoomSize / 2] = ETileType::START;
+    
+    return Room;
+}
+
+
+
+TArray<TArray<ETileType>> URoomManager::GenerateRoom(ULevelGraph* Level, UGraphNode* RoomKey)
+{
+    TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
+    Room = GenerateBaseRoom(Level, RoomKey);
+
+    int NumEnemies = FMath::RandRange(1, 3);
+
+    for (int i = 0; i < NumEnemies; i++)
+    {
+        int X = FMath::RandRange(0, Room.Num() - 1);
+        int Y = FMath::RandRange(0, Room.Num() - 1);
+
+        Room[X][Y] = ETileType::ENEMY;
+    }
 
     return Room;
 }
@@ -111,7 +135,7 @@ TArray<TArray<ETileType>> URoomManager::GenerateEdge(ULevelGraph* Level, UGraphN
     TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
     FIntPoint EdgeDirection = RoomKey->EdgeDirection;
 
-    int Centre = 4;
+    int Centre = RoomSize / 2;
     if (EdgeDirection.X == 0)
     {
         /* The corridor needs to run east to west */
@@ -124,6 +148,16 @@ TArray<TArray<ETileType>> URoomManager::GenerateEdge(ULevelGraph* Level, UGraphN
         for (int x = 0; x < RoomSize; x++)
             Room[x][Centre] = ETileType::FLOOR;
     }
+
+    return Room;
+}
+
+TArray<TArray<ETileType>> URoomManager::GenerateGoalRoom(ULevelGraph* Level, UGraphNode* RoomKey)
+{
+    TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
+    Room = GenerateBaseRoom(Level, RoomKey);
+
+    Room[RoomSize / 2][RoomSize / 2] = ETileType::GOAL;
 
     return Room;
 }
