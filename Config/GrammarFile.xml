@@ -108,25 +108,32 @@
 
 		<Graph Name="InjectTree" Node="iT" Edge="01"/>
 
-		<Graph Name="MinorTree1" Node="tNNI"	Edge="011223"/>
+		<Graph Name="MinorTree" Node="tNI"	Edge="0112"/>
 
-		<Graph Name="MinorTree2" Node="tNIN"	Edge="011223"/>
+		<Graph Name="Tree1" Node="tNNI"	Edge="011223"/>
+		
+		<Graph Name="Tree2" Node="tNII"	Edge="011223"/>
 
-		<Graph Name="MajorTree1" Node="tNNINNI" Edge="011223344556"/>
+		<Graph Name="KillerTree" Node="tNIK"	Edge="011223"/>
 
-		<Graph Name="MajorTree2" Node="tNINNIN" Edge="011223344556"/>
+		<Graph Name="AchieverTree" Node="tNIA"	Edge="011223"/>
 
+		<Graph Name="SocialiserTree" Node="tNIS"	Edge="011223"/>
+
+		<Graph Name="ExplorerTree" Node="tNIE"	Edge="011223"/>
 
 
 		<!-- Injected Hooks	- Nodes that that get replaced with hooks -->
 
 		<Graph Name="Inject" Node="I" Edge=""/>
 
-		<Graph Name="HubTree1" Node="iH"	Edge="01"/>
+		<Graph Name="HubTree1" Node="iLH"	Edge="0112"/>
 		
 		<Graph Name="InjectQuest" Node="iQ"	Edge="01"/>
 
-		<Graph Name="InjectGoal" Node="itG"	Edge="0112"/>
+		<Graph Name="InjectGoal" Node="itOLBG"	Edge="0112233445"/>
+		
+		<Graph Name="InjectGoal" Node="itOLBG"	Edge="0112233445"/>
 
 		<!-- Player Type Subgraphs - Nodes that denote player type specific room types -->
 		
@@ -172,13 +179,10 @@
 		</Rule>
 
 		<Rule Name="ResolveTree" Left="Tree" Mode="Cellular">
-			<Right Name="MinorTree1"/>
-			
-			<Right Name="MinorTree2"/>
-			<!-- 
-			<Right Name="MajorTree1"/>
-			<Right Name="MajorTree2"/> 
-			-->
+			<Right Name="KillerTree"/>
+			<Right Name="AchieverTree"/>
+			<Right Name="SocialiserTree"/>
+			<Right Name="ExplorerTree"/> 
 		</Rule>
 
 		<Rule Name="InjectTree" Left="Inject" Mode="Normal">
@@ -196,8 +200,8 @@
 		
 		<Rule Name="ResolveInject" Left="Inject" Mode="CELLULAR">
 			<!-- <Right Name="Hub"/> -->
-			<Right Name="MinorTree1"/>
-			<Right Name="MinorTree2"/>
+			<Right Name="MinorTree"/>
+			<Right Name="Tree2"/>
 			<!-- 
 			<Right Name="MajorTree1"/>
 			<Right Name="MajorTree2"/> 

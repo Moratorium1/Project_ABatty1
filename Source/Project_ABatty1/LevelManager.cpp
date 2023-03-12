@@ -7,6 +7,7 @@
 #include "RoomManager.h"
 #include "GraphManager.h"
 #include "GraphNode.h"
+#include "OnTile.h"
 #include "Tile.h"
 #include "SpawnTile.h"
 #include "EnemyBase.h"
@@ -27,13 +28,13 @@ void ULevelManager::Initialise()
 	RoomManager = GameInstance->GetSubsystem<URoomManager>();
 	RoomManager->Initialise();
 
-	// Initialise the array with 10 elements of nullptr then replace each with its own LevelGraph
-	Levels.Init(nullptr, 10);
+	// Initialise the Levels array with 10 elements of nullptr
+	Levels.Init(nullptr, GameInstance->LevelNumMax + 1);
 }
 
 void ULevelManager::GenerateLevel(const int& LevelNumber)
 {
-	/*  Destory all exisitng tiles
+	/*  Destory all exisitng tiles, onTiles, and enemies  
 	*	Initialise the Level - Add the starting node
 	*	Select a recipe
 	*	Execute the recipe
@@ -43,10 +44,14 @@ void ULevelManager::GenerateLevel(const int& LevelNumber)
 	*	If LayoutComposite returns false, Call GenerateLevel and start again
 	*/
 
-	// Destory all exisiting tiles 
-	// Swap to ATile
+	// Destory all exisiting tiles and enemies
 	for (TObjectIterator<ATile> Itr; Itr; ++Itr) Itr->Destroy();
+	for (TObjectIterator<AOnTile> Itr; Itr; ++Itr) Itr->Destroy();
 	for (TObjectIterator<AEnemyBase> Itr; Itr; ++Itr) Itr->Destroy();
+
+	// Load the current level again
+	//FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
+	//UGameplayStatics::OpenLevel(GetWorld(), *CurrentLevelName, true);
 
 	// Initialise the Level - Add the starting node
 	ULevelGraph* LevelGraph = NewObject<ULevelGraph>();
@@ -73,15 +78,11 @@ void ULevelManager::GenerateLevel(const int& LevelNumber)
 	// Initialise the Coarse Grid - Grid introduces graph nodes of ENodeType::EDGE between nodes with edges
 	GraphManager->InitialiseCoarseGrid(Levels[LevelNumber]);
 
-	// Initialise the Fine Grid - scales up the Coarse grid allocating a FineFactor x FineFactor grid to each node
-	GraphManager->InitialiseFineGrid(Levels[LevelNumber]);
-
 	// For each Node of the coarse grid add a 2D array to the rooms TMap - The 2D array represents the room of the node
 	RoomManager->ExtractRooms(Levels[LevelNumber]);
 
+	// For each node in the Rooms TMap generate a room based on the ENodeType of the Key
 	RoomManager->GenerateRooms(Levels[LevelNumber]);
-
-	//SpawnLevel(LevelNumber);
 
 	// Spawns tiles into the world
 	SpawnLevel(LevelNumber);
@@ -116,10 +117,37 @@ void ULevelManager::SpawnLevel(const int& LevelNumber)
 					GetWorld()->SpawnActor<ATile>(GameInstance->EnemyTileClass, FVector(RoomPosition.X + (x * GameInstance->TileSize), RoomPosition.Y + (y * GameInstance->TileSize), 0), FRotator::ZeroRotator);
 					break;
 
+				case ETileType::BOSS:
+					GetWorld()->SpawnActor<ATile>(GameInstance->BossTileClass, FVector(RoomPosition.X + (x * GameInstance->TileSize), RoomPosition.Y + (y * GameInstance->TileSize), 0), FRotator::ZeroRotator);
+					break;
+
 				case ETileType::GOAL:
 					GetWorld()->SpawnActor<ATile>(GameInstance->GoalTileClass, FVector(RoomPosition.X + (x * GameInstance->TileSize), RoomPosition.Y + (y * GameInstance->TileSize), -20), FRotator::ZeroRotator);
 					break;
 
+				case ETileType::LOCK:
+					GetWorld()->SpawnActor<ATile>(GameInstance->LockTileClass, FVector(RoomPosition.X + (x * GameInstance->TileSize), RoomPosition.Y + (y * GameInstance->TileSize), 0), FRotator::ZeroRotator);
+					break;
+
+				case ETileType::KEY:
+					GetWorld()->SpawnActor<ATile>(GameInstance->KeyTileClass, FVector(RoomPosition.X + (x * GameInstance->TileSize), RoomPosition.Y + (y * GameInstance->TileSize), 0), FRotator::ZeroRotator);
+					break;
+
+				case ETileType::KILLER:
+					GetWorld()->SpawnActor<ATile>(GameInstance->KillerTileClass, FVector(RoomPosition.X + (x * GameInstance->TileSize), RoomPosition.Y + (y * GameInstance->TileSize), 0), FRotator::ZeroRotator);
+					break;
+
+				case ETileType::ACHIEVER:
+					GetWorld()->SpawnActor<ATile>(GameInstance->AchieverTileClass, FVector(RoomPosition.X + (x * GameInstance->TileSize), RoomPosition.Y + (y * GameInstance->TileSize), 0), FRotator::ZeroRotator);
+					break;
+
+				case ETileType::SOCIALISER:
+					GetWorld()->SpawnActor<ATile>(GameInstance->SocialiserTileClass, FVector(RoomPosition.X + (x * GameInstance->TileSize), RoomPosition.Y + (y * GameInstance->TileSize), 0), FRotator::ZeroRotator);
+					break;
+
+				case ETileType::EXPLORER:
+					GetWorld()->SpawnActor<ATile>(GameInstance->ExplorerTileClass, FVector(RoomPosition.X + (x * GameInstance->TileSize), RoomPosition.Y + (y * GameInstance->TileSize), 0), FRotator::ZeroRotator);
+					break;
 				}
 			}
 	}

@@ -6,6 +6,10 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Interactive.h"
+#include "PickUp.h"
+
+
 
 // Sets default values
 AProjectCharacter::AProjectCharacter()
@@ -41,6 +45,16 @@ AProjectCharacter::AProjectCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, KRotationRate, 0.0f);
 
+	/* Held Item Setup */
+	PickupPosition = CreateDefaultSubobject<USceneComponent>(TEXT("Pickup Position"));
+	PickupPosition->SetupAttachment(RootComponent);
+	PickupPosition->SetRelativeLocation(FVector(PickupXPosition, 0, PickupZPosition));
+
+}
+
+USceneComponent* AProjectCharacter::GetPickupComponent()
+{
+	return PickupPosition;
 }
 
 // Called when the game starts or when spawned
@@ -106,4 +120,46 @@ void AProjectCharacter::MoveStrafe(float AxisAmount)
 void AProjectCharacter::Dash()
 {
 	LaunchCharacter(GetActorForwardVector() * KDashPower, false, false);
+}
+
+void AProjectCharacter::Interact()
+{
+	AInteractive* Interactive = InteractRangeCheck();
+
+	if (Interactive == nullptr) return;
+
+	Interactive->Interact(this);
+}
+
+AInteractive* AProjectCharacter::InteractRangeCheck()
+{
+	AInteractive* Interactive = nullptr;
+
+	FVector Start = GetActorLocation();
+	FRotator Direction = GetActorRotation();
+	FVector End = Start + Direction.Vector() * KInteractRange;
+
+	FHitResult Result;
+	TArray<AActor*> Ignore;
+	Ignore.Add(this);
+	Ignore.Add(PickUp);
+	if (UKismetSystemLibrary::SphereTraceSingle(GetWorld(), Start, End, KInteractRadius, ETraceTypeQuery::TraceTypeQuery1, false, Ignore, EDrawDebugTrace::ForOneFrame, Result, true, FColor::Red, FColor::Green))
+		Interactive = Cast<AInteractive>(Result.GetActor());
+
+	return Interactive;
+}
+
+void AProjectCharacter::SetPickUp(APickUp* Pickup)
+{
+	PickUp = Pickup;
+}
+
+APickUp* AProjectCharacter::GetPickUp()
+{
+	return PickUp;
+}
+
+void AProjectCharacter::PickUpInteraction(APickUp* Pickup)
+{
+
 }

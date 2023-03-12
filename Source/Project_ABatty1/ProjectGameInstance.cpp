@@ -122,7 +122,12 @@ void UProjectGameInstance::NextLevel()
 		LevelManager->GenerateLevel(++LevelNumber);
 	else
 	{
-		FLatentActionInfo info;
-		UGameplayStatics::LoadStreamLevel(GetWorld(), FName("MainMenuMap"), true, true, info);
+		FString LevelName = "MainMenuMap";
+		UGameplayStatics::OpenLevel(GetWorld(), *LevelName, true);
 	}
+}
+
+void UProjectGameInstance::ResetLevel()
+{
+	LevelNumber = 0;
 }

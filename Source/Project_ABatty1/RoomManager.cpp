@@ -68,9 +68,38 @@ void URoomManager::GenerateRooms(ULevelGraph* Level)
             Room = GenerateEdge(Level, RoomKey);
             break;
 
+        case ENodeType::BOSS:
+            Room = GenerateBossRoom(Level, RoomKey);
+            break;
+
         case ENodeType::GOAL:
             Room = GenerateGoalRoom(Level, RoomKey);
             break;
+
+        case ENodeType::LOCKED_EDGE:
+            Room = GenerateLockedEdge(Level, RoomKey);
+            break;
+
+        case ENodeType::KEY:
+            Room = GenerateKeyRoom(Level, RoomKey);
+            break;
+
+        case ENodeType::KILLER:
+            Room = GeneratePlayerTypeRoom(Level, RoomKey);
+            break;
+
+        case ENodeType::ACHIEVER:
+            Room = GeneratePlayerTypeRoom(Level, RoomKey);
+            break;
+
+        case ENodeType::SOCIALISER:
+            Room = GeneratePlayerTypeRoom(Level, RoomKey);
+            break;
+
+        case ENodeType::EXPLORER:
+            Room = GeneratePlayerTypeRoom(Level, RoomKey);
+            break;
+
 
         default:
             Room = GenerateRoom(Level, RoomKey);
@@ -101,7 +130,46 @@ TArray<TArray<ETileType>> URoomManager::GenerateStartRoom(ULevelGraph* Level, UG
     return Room;
 }
 
+TArray<TArray<ETileType>> URoomManager::GenerateKeyRoom(ULevelGraph* Level, UGraphNode* RoomKey)
+{
+    TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
+    Room = GenerateBaseRoom(Level, RoomKey);
 
+    Room[RoomSize / 2][RoomSize / 2] = ETileType::KEY;
+
+    return Room;
+}
+
+TArray<TArray<ETileType>> URoomManager::GeneratePlayerTypeRoom(ULevelGraph* Level, UGraphNode* RoomKey)
+{
+    TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
+    Room = GenerateBaseRoom(Level, RoomKey);
+
+    ETileType PlayerType = ETileType::INVALID;
+
+    switch (RoomKey->GetType())
+    {
+    case ENodeType::KILLER:
+        PlayerType = ETileType::KILLER;
+        break;
+
+    case ENodeType::ACHIEVER:
+        PlayerType = ETileType::ACHIEVER;
+        break;
+
+    case ENodeType::SOCIALISER:
+        PlayerType = ETileType::SOCIALISER;
+        break;
+
+    case ENodeType::EXPLORER:
+        PlayerType = ETileType::EXPLORER;
+        break;
+    }
+
+    Room[RoomSize / 2][RoomSize / 2] = PlayerType;
+
+    return Room;
+}
 
 TArray<TArray<ETileType>> URoomManager::GenerateRoom(ULevelGraph* Level, UGraphNode* RoomKey)
 {
@@ -117,6 +185,16 @@ TArray<TArray<ETileType>> URoomManager::GenerateRoom(ULevelGraph* Level, UGraphN
 
         Room[X][Y] = ETileType::ENEMY;
     }
+
+    return Room;
+}
+
+TArray<TArray<ETileType>> URoomManager::GenerateBossRoom(ULevelGraph* Level, UGraphNode* RoomKey)
+{
+    TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
+    Room = GenerateBaseRoom(Level, RoomKey);
+
+    Room[RoomSize / 2][RoomSize / 2] = ETileType::BOSS;
 
     return Room;
 }
@@ -146,6 +224,32 @@ TArray<TArray<ETileType>> URoomManager::GenerateEdge(ULevelGraph* Level, UGraphN
     {
         /* The corridor need to run north to south */
         for (int x = 0; x < RoomSize; x++)
+            Room[x][Centre] = ETileType::FLOOR;
+    }
+
+    return Room;
+}
+
+TArray<TArray<ETileType>> URoomManager::GenerateLockedEdge(ULevelGraph* Level, UGraphNode* RoomKey)
+{
+    TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
+    FIntPoint EdgeDirection = RoomKey->EdgeDirection;
+
+    int Centre = RoomSize / 2;
+    if (EdgeDirection.X == 0)
+    {
+        /* The corridor needs to run east to west */
+        Room[Centre][0] = ETileType::LOCK;
+
+        for (int y = 1; y < RoomSize; y++)
+            Room[Centre][y] = ETileType::FLOOR;
+    }
+    else if (EdgeDirection.Y == 0)
+    {
+        /* The corridor need to run north to south */
+        Room[0][Centre] = ETileType::LOCK;
+
+        for (int x = 1; x < RoomSize; x++)
             Room[x][Centre] = ETileType::FLOOR;
     }
 

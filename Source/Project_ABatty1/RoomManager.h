@@ -19,8 +19,16 @@ enum class ETileType
 	EMPTY,
 	FLOOR,
 	ENEMY,
+	BOSS,
 	START,
 	GOAL,
+	LOCK,
+	KEY,
+
+	KILLER,
+	ACHIEVER,
+	SOCIALISER,
+	EXPLORER,
 
 	MAX
 };
@@ -62,11 +70,23 @@ private:
 	/* Creates a basic room and places enemies */
 	TArray<TArray<ETileType>> GenerateRoom(ULevelGraph* Level, UGraphNode* RoomKey);
 
+	/* Creates a basic room and places Boss */
+	TArray<TArray<ETileType>> GenerateBossRoom(ULevelGraph* Level, UGraphNode* RoomKey);
+
 	/* Creates a basic room and places a Start tile in the centre - start tile upon spawning moves the player to it*/
 	TArray<TArray<ETileType>> GenerateStartRoom(ULevelGraph* Level, UGraphNode* RoomKey);
 
+	/* Creates a basic room and places a Key tile in the centre*/
+	TArray<TArray<ETileType>> GenerateKeyRoom(ULevelGraph* Level, UGraphNode* RoomKey);
+
+	/* Creates a basic room and places a Key tile in the centre*/
+	TArray<TArray<ETileType>> GeneratePlayerTypeRoom(ULevelGraph* Level, UGraphNode* RoomKey);
+
 	/* Create a thin central strip of floors in the direction between the two nodes */
 	TArray<TArray<ETileType>> GenerateEdge(ULevelGraph* Level, UGraphNode* RoomKey);
+
+	/* Create a thin central strip of floors in the direction between the two nodes */
+	TArray<TArray<ETileType>> GenerateLockedEdge(ULevelGraph* Level, UGraphNode* RoomKey);
 
 	/* Create a basic room and places a Goal tile in the centre - goal tile creates overlap volume above it that loads the next level */
 	TArray<TArray<ETileType>> GenerateGoalRoom(ULevelGraph* Level, UGraphNode* RoomKey);

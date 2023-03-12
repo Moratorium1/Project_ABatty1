@@ -105,6 +105,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void NextLevel();
 
+	/* Generates and loads the next level */
+	UFUNCTION(BlueprintCallable)
+	void ResetLevel();
+
 	/* Tile Information */
 
 	UPROPERTY(EditAnywhere, Category = "Tile")
@@ -115,11 +119,38 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Tile")
 	TSubclassOf<ATile> StartTileClass;
 
+	/*  */
+	UPROPERTY(EditAnywhere, Category = "Tile")
+	TSubclassOf<ATile> LockTileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Tile")
+	TSubclassOf<ATile> KeyTileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Tile")
+	TSubclassOf<ATile> QuestTileClass;
+
 	UPROPERTY(EditAnywhere, Category = "Tile")
 	TSubclassOf<ATile> EnemyTileClass;
 
 	UPROPERTY(EditAnywhere, Category = "Tile")
+	TSubclassOf<ATile> BossTileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Tile")
 	TSubclassOf<ATile> GoalTileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Tile")
+	TSubclassOf<ATile> KillerTileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Tile")
+	TSubclassOf<ATile> AchieverTileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Tile")
+	TSubclassOf<ATile> SocialiserTileClass;
+
+	UPROPERTY(EditAnywhere, Category = "Tile")
+	TSubclassOf<ATile> ExplorerTileClass;
+
+
 
 	UPROPERTY(EditAnywhere, Category = "Tile")
 	int TileSize = 250;
@@ -138,7 +169,7 @@ public:
 	int RoomSize = 9;
 
 	UPROPERTY(EditAnywhere, Category = "LevelManager")
-	int LevelNumMax = 9;
+	int LevelNumMax = 10;
 
 	/* Level Number corresponds to the index of the LevelManagers Levels Array - incremented upon level completion */
 	UPROPERTY()

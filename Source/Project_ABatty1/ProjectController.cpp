@@ -21,6 +21,9 @@ void AProjectController::SetupInputComponent()
 	InputComponent->BindAxis("MoveStrafe", this, &AProjectController::CallMoveStrafe);
 	InputComponent->BindAction("Dash", IE_Pressed, this, &AProjectController::CallDash);
 
+	/* Action binds */
+	InputComponent->BindAction("Interact", IE_Pressed, this, &AProjectController::CallInteract);
+
 	/* Level generation binds  */
 	InputComponent->BindAction("NextLevel", IE_Pressed, this, &AProjectController::CallNextLevel);
 	InputComponent->BindAction("AddQuest", IE_Pressed, this, &AProjectController::AddQuestToInjectionQueue);
@@ -56,6 +59,14 @@ void AProjectController::CallDash()
 
 	if (GetPawn()->IsA(AProjectCharacter::StaticClass()))
 		Cast<AProjectCharacter>(GetPawn())->Dash();
+}
+
+void AProjectController::CallInteract()
+{
+	if (GetPawn() == nullptr) return;
+
+	if (GetPawn()->IsA(AProjectCharacter::StaticClass()))
+		Cast<AProjectCharacter>(GetPawn())->Interact();
 }
 
 void AProjectController::CallIncreaseKillerType()

@@ -26,6 +26,7 @@ enum class ENodeType
 	ROOM,
 	KEY,
 	LOCK,
+	BOSS,
 	KILLER,
 	ACHIEVER,
 	SOCIALISER,
@@ -45,6 +46,7 @@ enum class ENodeType
 	room,
 	key,
 	lock,
+	boss,
 	killer,
 	achiever,
 	socialiser,
@@ -54,6 +56,7 @@ enum class ENodeType
 
 	// Edge
 	EDGE,
+	LOCKED_EDGE,
 
 	MAX
 };

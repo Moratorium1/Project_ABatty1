@@ -32,6 +32,11 @@ private:
 	void CallDash();
 
 	UFUNCTION()
+	void CallInteract();
+
+	/* Level Generation Calls */
+
+	UFUNCTION()
 	void CallIncreaseKillerType();
 
 	UFUNCTION()

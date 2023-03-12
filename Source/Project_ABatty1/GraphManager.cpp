@@ -500,7 +500,12 @@ void UGraphManager::SetBetweenNodes(ULevelGraph* Level)
                 FIntPoint ToNodeCoords = Edge->GetTo()->LayoutCoords;
                 FIntPoint DirectionToTo = FIntPoint(ToNodeCoords.X - FromNodeCoords.X, ToNodeCoords.Y - FromNodeCoords.Y);
 
-                UGraphNode* NewEdge = CreateNodeOfType(ENodeType::EDGE);
+                UGraphNode* NewEdge;
+                if (Node->GetType() != ENodeType::LOCK)
+                    NewEdge = CreateNodeOfType(ENodeType::EDGE);
+                else
+                    NewEdge = CreateNodeOfType(ENodeType::LOCKED_EDGE);
+
                 NewEdge->LayoutCoords = FIntPoint(FromNodeCoords.X + (DirectionToTo.X/2), FromNodeCoords.Y + (DirectionToTo.Y/2));
                 NewEdge->EdgeDirection = FIntPoint(DirectionToTo.X / 2, DirectionToTo.Y / 2);
 

@@ -137,6 +137,11 @@ TArray<ENodeType> UGraph::StringToENodeType(const FString String)
 		else if (Type.Equals(TEXT("i")))
 			NodeTypes.Add(ENodeType::inject);
 
+		else if (Type.Equals(TEXT("B")))
+			NodeTypes.Add(ENodeType::BOSS);
+		else if (Type.Equals(TEXT("b")))
+			NodeTypes.Add(ENodeType::boss);
+
 		else if (Type.Equals(TEXT("Z")))
 			NodeTypes.Add(ENodeType::START);
 		else if (Type.Equals(TEXT("z")))
