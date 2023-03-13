@@ -109,6 +109,7 @@ void URoomManager::GenerateRooms(ULevelGraph* Level)
     }
 }
 
+/* Create a basic room with all tiles of the room set as floor tiles */
 TArray<TArray<ETileType>> URoomManager::GenerateBaseRoom(ULevelGraph* Level, UGraphNode* RoomKey)
 {
     TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
@@ -120,6 +121,7 @@ TArray<TArray<ETileType>> URoomManager::GenerateBaseRoom(ULevelGraph* Level, UGr
     return Room;
 }
 
+/* Create the basic room then add a start tile */
 TArray<TArray<ETileType>> URoomManager::GenerateStartRoom(ULevelGraph* Level, UGraphNode* RoomKey)
 {
     TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
@@ -130,6 +132,7 @@ TArray<TArray<ETileType>> URoomManager::GenerateStartRoom(ULevelGraph* Level, UG
     return Room;
 }
 
+/* Create the basic room then add a key tile */
 TArray<TArray<ETileType>> URoomManager::GenerateKeyRoom(ULevelGraph* Level, UGraphNode* RoomKey)
 {
     TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
@@ -140,6 +143,7 @@ TArray<TArray<ETileType>> URoomManager::GenerateKeyRoom(ULevelGraph* Level, UGra
     return Room;
 }
 
+/* Create the basic room then add a player type specific tile in the centre */
 TArray<TArray<ETileType>> URoomManager::GeneratePlayerTypeRoom(ULevelGraph* Level, UGraphNode* RoomKey)
 {
     TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
@@ -171,6 +175,7 @@ TArray<TArray<ETileType>> URoomManager::GeneratePlayerTypeRoom(ULevelGraph* Leve
     return Room;
 }
 
+/* Generate the basic room then add 1 - 3 enemy spawn tiles */
 TArray<TArray<ETileType>> URoomManager::GenerateRoom(ULevelGraph* Level, UGraphNode* RoomKey)
 {
     TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
@@ -189,6 +194,7 @@ TArray<TArray<ETileType>> URoomManager::GenerateRoom(ULevelGraph* Level, UGraphN
     return Room;
 }
 
+/* Generate basic room then add a boss spawning tile in the centre */
 TArray<TArray<ETileType>> URoomManager::GenerateBossRoom(ULevelGraph* Level, UGraphNode* RoomKey)
 {
     TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
@@ -208,6 +214,8 @@ TArray<TArray<ETileType>> URoomManager::GenerateEdge(ULevelGraph* Level, UGraphN
     *       - A Corridor running from North to South
     *       - A Corridor running from East to West
     *  These corridors will be placed centrally in the room
+    * 
+    * 
     */
 
     TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
@@ -230,32 +238,27 @@ TArray<TArray<ETileType>> URoomManager::GenerateEdge(ULevelGraph* Level, UGraphN
     return Room;
 }
 
+/* Create an edge room then add the lock */
 TArray<TArray<ETileType>> URoomManager::GenerateLockedEdge(ULevelGraph* Level, UGraphNode* RoomKey)
 {
+    /* Locked Edges are edges with the first tile from the FromNode room being a LOCK tile
+    *  Generate an edge as usual then set the first tile as the lock tile
+    */
+
     TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];
     FIntPoint EdgeDirection = RoomKey->EdgeDirection;
+    Room = GenerateEdge(Level, RoomKey);
 
     int Centre = RoomSize / 2;
     if (EdgeDirection.X == 0)
-    {
-        /* The corridor needs to run east to west */
         Room[Centre][0] = ETileType::LOCK;
-
-        for (int y = 1; y < RoomSize; y++)
-            Room[Centre][y] = ETileType::FLOOR;
-    }
     else if (EdgeDirection.Y == 0)
-    {
-        /* The corridor need to run north to south */
         Room[0][Centre] = ETileType::LOCK;
-
-        for (int x = 1; x < RoomSize; x++)
-            Room[x][Centre] = ETileType::FLOOR;
-    }
 
     return Room;
 }
 
+/* Create a basic room then add a Goal tile at the centre */
 TArray<TArray<ETileType>> URoomManager::GenerateGoalRoom(ULevelGraph* Level, UGraphNode* RoomKey)
 {
     TArray<TArray<ETileType>> Room = Level->Rooms[RoomKey];

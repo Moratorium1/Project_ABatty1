@@ -21,11 +21,9 @@ void UGraphManager::Initialise()
     GameInstance = Cast<UProjectGameInstance>(GetGameInstance());
 }
 
-void UGraphManager::ExecuteRecipe(const FString& RecipeName, ULevelGraph* Level)
+void UGraphManager::ExecuteRecipe(URecipe* Recipe, ULevelGraph* Level)
 {
     /* Execute each rule of the given recipe */
-
-    auto Recipe = Recipes[RecipeName];
     if (!Recipe) return;
 
     for (auto rule : Recipe->GetRules())
@@ -100,16 +98,18 @@ UGraph* UGraphManager::ChooseRight(TArray<FString> SubGraphNames)
 }
 
 /* Chooses a URecipe */
-FString UGraphManager::ChooseRecipe()
+URecipe* UGraphManager::ChooseRecipe(TMap<FString, URecipe*> RecipeMap)
 {
+    if (RecipeMap.IsEmpty()) return nullptr;
+
     TArray<FString> RecipeNames; 
-    Recipes.GetKeys(RecipeNames);
+    RecipeMap.GetKeys(RecipeNames);
 
     // Generate a random index within the bounds of the array
-    int32 RandIndex = FMath::RandRange(0, Recipes.Num() - 1);
+    int32 RandIndex = FMath::RandRange(0, RecipeMap.Num() - 1);
 
     // Return the Recipe name at the random index
-    return RecipeNames[RandIndex];
+    return RecipeMap[RecipeNames[RandIndex]];
 }
 
 /* SUBGRAPH SEARCH FUNCTIONS START */
@@ -482,8 +482,11 @@ void UGraphManager::SetBetweenNodes(ULevelGraph* Level)
     *  if the node has an edge
     *  get the To node
     *  compare the LayoutCoords of the From and To to determine the direcion of the node in the layout
-    *  place a UGraphNode of ENodeType::EDGE at the From LayoutCoords + DirectionToTo/2 in the coarseGrid
+    *  place a UGraphNode of ENodeType::EDGE or ENodeType::LOCK_EDGE at the From LayoutCoords + DirectionToTo/2 in the coarseGrid
     *  set the edge nodes EdgeDirection for use in laying out the level  
+    * 
+    *  DirectionToTo/2 has to be divided by 2 as the coarse grid has the additional node between adjacent nodes
+    *  so directions have 2 and -2 instead of 1s - to place the edge between the direction with 1s is required
     * 
     *  This should result in the CoarseGrid having an edge node between all connected nodes
     */
@@ -533,6 +536,21 @@ void UGraphManager::InitialiseFineGrid(ULevelGraph* Level)
                 FineGrid[x][y] = CoarseGrid[FMath::Floor(x / FineFactor)][FMath::Floor(y / FineFactor)];
         }
     Level->FineGrid = FineGrid;
+}
+
+void UGraphManager::ClearCompositeNodes(ULevelGraph* Level)
+{
+    /*
+    * Loop through the Nodes of the level changing any composite node into a room
+    */
+
+    for (UGraphNode* Node : Level->OverallLevel->Nodes)
+    {
+        ENodeType Type = Node->GetType();
+
+        if (Type == ENodeType::tree || Type == ENodeType::cycle || Type == ENodeType::hub || Type == ENodeType::inject || Type == ENodeType::INJECT)
+            Node->SetType(ENodeType::ROOM);
+    }
 }
 
 bool UGraphManager::LayoutCycle(UGraph* Cycle, TArray<TArray<UGraphNode*>>& Grid, int AdjX, int AdjY)
@@ -735,7 +753,7 @@ void UGraphManager::SetAdjComposites(ULevelGraph* Level)
 /* Splits the OverallLevel Graph of a given level into its hub, tree and cycle composites - So the graph can be layed out composite by composite */
 void UGraphManager::ExtractComposites(ULevelGraph* Level)
 {
-    /* For each composite node (tree, hub and cycle nodes) perform a DFS that cannot traverse other composite nodes
+    /* For each composite node (start, tree, hub and cycle nodes) perform a DFS that cannot traverse other composite nodes
     *  Add each of these graphs to the Composite TMap using the starting composite node as the key
     */
 
@@ -867,6 +885,10 @@ void UGraphManager::ParseRecipes(const FXmlNode* Root)
        URecipe* Recipe = NewObject<URecipe>();
        Recipe->Initialise(Name, RuleNames);
 
-       Recipes.Add(Name, Recipe);
+       FString Type = CurrentRecipe->GetAttribute("type");
+       if (Type == "Composite")
+            CompositeRecipes.Add(Name, Recipe);
+       else if (Type == "LowLevel")
+            LowRecipes.Add(Name, Recipe);
     }
 }

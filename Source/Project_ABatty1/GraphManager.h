@@ -45,13 +45,13 @@ private:
 
 	/* Grammar Rule Execution Functions */
 
-	/* Select a random recipe */
+	/* Select a random recipe from the passed recipe map */
 	UFUNCTION()
-	FString ChooseRecipe();
+	URecipe* ChooseRecipe(TMap<FString, URecipe*> RecipeMap);
 
 	/* */
 	UFUNCTION()
-	void ExecuteRecipe(const FString& RecipeName, ULevelGraph* Level);
+	void ExecuteRecipe(URecipe* Recipe, ULevelGraph* Level);
 
 	/* Given an array of FStrings that are the names of subgraphs, return a TArray of these subgraph weighted so that there is a greater number of  */
 	UFUNCTION()
@@ -139,6 +139,8 @@ private:
 	UFUNCTION()
 	void InitialiseFineGrid(ULevelGraph* Level);
 
+	UFUNCTION()
+	void ClearCompositeNodes(ULevelGraph* Level);
 
 	/* XML Functions */
 
@@ -161,7 +163,10 @@ private:
 
 	/* Holds lists of rules - Recipes */
 	UPROPERTY()
-	TMap<FString, URecipe*> Recipes;
+	TMap<FString, URecipe*> CompositeRecipes;
+
+	UPROPERTY()
+	TMap<FString, URecipe*> LowRecipes;
 
 	/* Parse recipe detailed in xml into Recipes TMap */
 	void ParseRecipes(const FXmlNode* Root);

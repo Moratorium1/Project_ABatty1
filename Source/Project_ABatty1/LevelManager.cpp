@@ -49,17 +49,13 @@ void ULevelManager::GenerateLevel(const int& LevelNumber)
 	for (TObjectIterator<AOnTile> Itr; Itr; ++Itr) Itr->Destroy();
 	for (TObjectIterator<AEnemyBase> Itr; Itr; ++Itr) Itr->Destroy();
 
-	// Load the current level again
-	//FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
-	//UGameplayStatics::OpenLevel(GetWorld(), *CurrentLevelName, true);
-
 	// Initialise the Level - Add the starting node
 	ULevelGraph* LevelGraph = NewObject<ULevelGraph>();
 	Levels[LevelNumber] = LevelGraph;
 	Levels[LevelNumber]->Initialise();
 
-	// Select and Execute the recipe on current level
-	GraphManager->ExecuteRecipe(GraphManager->ChooseRecipe(), Levels[LevelNumber]);
+	// Select and Execute a composite recipe on current level
+	GraphManager->ExecuteRecipe(GraphManager->ChooseRecipe(GraphManager->CompositeRecipes), Levels[LevelNumber]);
 
 	// Perform any injections add to the queue by the player
 	GraphManager->ResolveInjectionQueue(Levels[LevelNumber]);
@@ -74,6 +70,12 @@ void ULevelManager::GenerateLevel(const int& LevelNumber)
 
 	// If the level has been sucessfully laid out clear the injection queue - otherwise queued will appear on every level
 	GraphManager->ClearInjectionQueue();
+
+	// With the level layed out the composite nodes can be cleared - changed to basic room nodes
+	GraphManager->ClearCompositeNodes(Levels[LevelNumber]);
+
+	// With the composites cleared low level transformation can be performed - looking for patterns of rooms and changing their types
+	GraphManager->ExecuteRecipe(GraphManager->ChooseRecipe(GraphManager->LowRecipes), Levels[LevelNumber]);
 
 	// Initialise the Coarse Grid - Grid introduces graph nodes of ENodeType::EDGE between nodes with edges
 	GraphManager->InitialiseCoarseGrid(Levels[LevelNumber]);

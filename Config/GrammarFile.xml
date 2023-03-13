@@ -54,8 +54,10 @@
 		<Graph Name="Start" Node="Z" Edge=""/>
 
 		<Graph Name="Hub" Node="H" Edge=""/>
-		
-		
+
+		<Graph Name="TerminalHub" Node="h" Edge=""/> 
+
+
 		<!-- Compisite Subgraphs - Initial nodes that inform the later rules -->
 
 		<Graph Name="SingleTree" Node="zT" Edge="01"/>
@@ -101,10 +103,14 @@
 
 			<Graph Name="MajorRewardCycle3" Node="cNNNIR" Edge="011223344550"/>
 		-->
+		
+		<Graph Name="Room" Node="N" Edge=""/>
 
 		<!-- Tree Subgraphs - Replace the Tree Nodes -->
 		
 		<Graph Name="Tree" Node="T" Edge=""/>
+
+		<Graph Name="TerminalTree" Node="t" Edge=""/>
 
 		<Graph Name="InjectTree" Node="iT" Edge="01"/>
 
@@ -127,6 +133,8 @@
 
 		<Graph Name="Inject" Node="I" Edge=""/>
 
+		<Graph Name="TerminalInject" Node="i" Edge=""/>
+
 		<Graph Name="HubTree1" Node="iLH"	Edge="0112"/>
 		
 		<Graph Name="InjectQuest" Node="iQ"	Edge="01"/>
@@ -145,7 +153,7 @@
 
 		<Graph Name="explorer" Node="E" Edge=""/>
 
-
+	
 
 
 
@@ -211,15 +219,28 @@
 		<Rule Name="Quest" Left="Inject" Mode="Normal">
 			<Right Name="InjectQuest"/>
 		</Rule>
+		
+		<Rule Name="Cleartree" Left="TerminalTree" Mode="CELLULAR">
+			<Right Name="Room"/>
+		</Rule>
+
+		<Rule Name="Clearinject" Left="TerminalInject" Mode="CELLULAR">
+			<Right Name="Room"/>
+		</Rule>
+
+		<Rule Name="Clearhub" Left="TerminalHub" Mode="CELLULAR">
+			<Right Name="Room"/>
+		</Rule>
+		
 
 	</Rules>
 	
 	
 	
-	
+	<!-- Composite Recipes - Recipes that create graphs of composite and normal rooms to be layed out on to the grid -->
 	<Recipes type="Recipe">
 		
-		<Recipe Name="Recipe1">
+		<Recipe Name="Recipe1" Type="Composite">
 			<Rule Name="Start"/>
 			<Rule Name="ResolveTree"/>
 			<Rule Name="InjectTree"/>
@@ -229,7 +250,7 @@
 	
 
 		
-		<Recipe Name="Recipe2">
+		<Recipe Name="Recipe2" Type="Composite">
 			<Rule Name="Start"/>
 			<Rule Name="ResolveTree"/>
 			<Rule Name="InjectHub"/>
@@ -238,6 +259,15 @@
 			<!-- <Rule Name="ResolveTree"/> -->
 		</Recipe>
 		
+		
+		<!-- Low Level Recipes - Recipes that transform the create composite graph 
+			** As graph nodes are already layed out the rules can only edit node types and not add new nodes ** 
+			** Needs to begin with resolving composite nodes - turning all combosite nodes into normal rooms -->
+		<Recipe Name="Recipe2" Type="LowLevel">
+			
+		</Recipe>
+
+
 
 	</Recipes>
 	
